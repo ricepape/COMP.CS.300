@@ -14,9 +14,12 @@ using namespace std;
 
 void printReverse(const list<int>& lst)
 {
-    for (auto it = lst.end(); it != lst.begin(); --it)
+    for (auto it = std::prev(lst.end()); it != lst.begin(); --it)
     {
         std::cout << *it << " ";
+    }
+    if (!lst.empty()) {
+        std::cout << *lst.begin();
     }
     std::cout << std::endl;
 }

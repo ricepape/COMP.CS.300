@@ -15,6 +15,10 @@ using namespace std;
  */
 int sortAsc(std::vector<int>& v)
 {
+    if (!v.empty()){
+        std::sort(v.begin(), v.end());
+        return EXIT_SUCCESS;
+    }
     return EXIT_FAILURE;
 }
 

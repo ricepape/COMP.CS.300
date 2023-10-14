@@ -16,5 +16,10 @@ using namespace std;
  */
 std::vector<int>::reverse_iterator findLastEven(std::vector<int>& v)
 {
+    std::vector<int>::reverse_iterator iterator = std::find_if(v.rbegin(), v.rend(), [v](int i) {
+        return i % 2 == 0;
+    });
+
+    return iterator;
 }
 

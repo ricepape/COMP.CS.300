@@ -21,7 +21,7 @@ int findAtLeastGiven(std::map<std::string, int>& m, int given)
         return element.second >= given;
     });
 
-    if (it != m.end() || it->second >= given) {
+    if (it != m.end() && it->second >= given) {
         return it->second;
     } else {
         return NOT_FOUND;

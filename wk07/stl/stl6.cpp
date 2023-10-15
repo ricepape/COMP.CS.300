@@ -17,5 +17,15 @@ using namespace std;
  */
 int findAtLeastGiven(std::map<std::string, int>& m, int given)
 {
+    auto it = std::find_if(m.begin(), m.end(), [given](const std::pair<std::string, int>& element) {
+        return element.second >= given;
+    });
+
+    if (it != m.end() || it->second >= given) {
+        return it->second;
+    } else {
+        return NOT_FOUND;
+    }
 }
+
 

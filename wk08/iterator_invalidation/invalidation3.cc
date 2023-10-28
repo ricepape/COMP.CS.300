@@ -13,15 +13,13 @@ using namespace std;
 void duplicateEvenRemoveUneven(std::vector<int>& vec) {
     using Iter = std::vector<int>::iterator;
 
-    for ( Iter it = vec.begin()+1; it <= vec.end(); it++){
-        it--;
-        if ( *it % 2 == 0 ){
-            vec.insert(it, *it);
-            it+=2;
+    for (Iter it = vec.begin(); it != vec.end(); ) {  // Use a while loop to iterate over the vector.
+        if (*it % 2 == 0) {  // Check if the current element is even.
+            vec.insert(it, *it);  // Duplicate the even number.
+            it += 2;  // Move the iterator 2 positions forward (skip the duplicated element).
         }
         else {
-            vec.erase(it);
+            it = vec.erase(it);  // Remove the odd number and update the iterator.
         }
     }
 }
-

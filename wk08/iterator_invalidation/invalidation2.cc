@@ -12,7 +12,7 @@ using namespace std;
  */
 void eraseEverySecond(std::vector<int>& vec) {
     int k = 0;
-    for (auto i = vec.begin()+1; i <= vec.end(); i = i+1){ 
+    for (auto i = vec.begin()+1; i != vec.end(); i = i+1){ 
         if (k % 2 == 0){
             vec.erase(i);
             }

@@ -15,13 +15,11 @@ void duplicateEvenRemoveUneven(std::vector<int>& vec) {
 
     for (Iter it = vec.begin(); it != vec.end(); ) {
     if (*it % 2 == 0) {
-        vec.insert(it, *it);  // Duplicate the even number.
-        if (it + 2 != vec.end()){
-            it += 2;  // Move the iterator 2 positions forward (skip the duplicated element).
-        }
+        it = vec.insert(it, *it);  
+        it += 2;  
     }
     else {
-        it = vec.erase(it);  // Remove the odd number and update the iterator.
+        it = vec.erase(it);  
     }
 }
 }

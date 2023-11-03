@@ -11,10 +11,13 @@
  */
 int minValue(std::vector<int> vec){
     if ( vec.empty() ) { return 0; }
-    if ( std::is_sorted(vec.begin(), vec.end()) ) {
-        return vec[0];
-    } else {
-        std::sort(vec.begin(), vec.end());
-        return vec[0];
+    int* p = vec.data(); // Get a pointer to the first element of the vector
+    int min = 0;
+    for (int i = 0; i < size(vec); i++) {
+        if (*(p + i) < min){
+            min = *(p+i);
+        } // Assign values using pointer arithmetic
     }
+
+    return min;
 }

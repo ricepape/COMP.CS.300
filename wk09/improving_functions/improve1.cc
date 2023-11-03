@@ -10,5 +10,10 @@
  * @return std::vector<int>
  */
 std::vector<int> ascendingVector(int n){
-    return std::vector<int>(n);
+    std::vector<int> v;
+    v.reserve(n); // Reserve memory for n elements
+    for (int i = 0; i < n; i++) {
+        v.push_back(i);
+    }
+    return v;
 }

@@ -12,7 +12,7 @@
 int minValue(std::vector<int> vec){
     if ( vec.empty() ) { return 0; }
     int* p = vec.data(); // Get a pointer to the first element of the vector
-    int min = 0;
+    int min = *p;
     for (int i = 0; i < size(vec); i++) {
         if (*(p + i) < min){
             min = *(p+i);

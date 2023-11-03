@@ -22,13 +22,39 @@ using RNG = std::default_random_engine;
  */
 void randomizedThreePartQuicksort(iter begin, iter end, RNG& rng)
 {
-    if (begin == end) return;
-    std::shuffle(begin, end, rng);
-    auto pivot = *(begin + (end - begin)/2);
-    iter middle1 = std::partition(begin, end,
-        [pivot](int val){ return val < pivot; });
-    iter middle2 = std::partition(middle1, end,
-        [pivot](int val){ return !(pivot < val); });
-    randomizedThreePartQuicksort(begin, middle1, rng);
-    randomizedThreePartQuicksort(middle2, end, rng);
+     std::uniform_int_distribution<int> dist(std::distance(begin, end) - 1);
+        iter pivot_it = begin + dist(rng);
+        int pivot = *pivot_it;
+
+        iter left = begin;
+        iter right = end - 1;
+
+        while (left <= right) {
+            while (*left < pivot) {
+                ++left;
+            }
+            while (*right > pivot) {
+                --right;
+            }
+            if (left <= right) {
+                std::iter_swap(left, right);
+                ++left;
+                --right;
+            }
+        }
+        iter middle1 = left;
+        iter middle2 = left;
+
+        while (middle2 <= end - 1 && *middle2 == pivot) {
+            ++middle2;
+        }
+        
+        randomizedThreePartQuicksort(begin, right + 1, rng);   
+        randomizedThreePartQuicksort(middle2, end, rng);        
+
+        if (pivot != *middle1) {
+            randomizedThreePartQuicksort(middle1, middle2, rng); // Sort elements equal to pivot
+        }
+
+        begin = middle2;
 }

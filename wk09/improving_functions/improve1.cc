@@ -10,10 +10,16 @@
  * @return std::vector<int>
  */
 std::vector<int> ascendingVector(int n){
-    std::vector<int> v;
-    v.reserve(n); // Reserve memory for n elements
-    for (int i = 0; i < n; i++) {
-        v.push_back(i);
+    if (n <= 0) {
+        return std::vector<int>(); // Return an empty vector for n <= 0
     }
+
+    std::vector<int> v(n);
+    int* p = v.data(); // Get a pointer to the first element of the vector
+
+    for (int i = 0; i < n; i++) {
+        *(p + i) = i; // Assign values using pointer arithmetic
+    }
+
     return v;
 }

@@ -10,5 +10,5 @@
  * @return std::vector<int>
  */
 std::vector<int> ascendingVector(int n){
-    return std::vector<int>(n)
+    return std::vector<int>(n);
 }

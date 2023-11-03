@@ -15,13 +15,13 @@
  *         a map as values, vector values used as keys.
  */
 std::map<int, int> cumulativeSums(std::vector<int> v) {
-    std::map<int,int> sums;
-    int* p = v.data();
-    for (unsigned int i=0; i<size(v); ++i) {
-        if (sums.empty())
-        { sums[v[*(p+i)]] = v[*(p+i)]; }
-        else
-        { sums[v[*(p+i)]] = sums.at(v[*(p+i-1)]) + v[*(p+i)]; }
+    std::map<int, int> sums;
+    int cumulativeSum = 0;
+
+    for (const int& value : v) {
+        cumulativeSum += value;
+        sums[value] = cumulativeSum;
     }
+
     return sums;
 }

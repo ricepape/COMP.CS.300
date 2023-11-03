@@ -17,8 +17,7 @@
 std::map<int, int> cumulativeSums(std::vector<int> v) {
     std::map<int,int> sums;
     int* p = v.data();
-
-    for (unsigned int i=0; i<v.size(); ++i) {
+    for (unsigned int i=0; i<size(v); ++i) {
         if (sums.empty())
         { sums[v[*(p+i)]] = v[*(p+i)]; }
         else

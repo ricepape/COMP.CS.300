@@ -22,39 +22,30 @@ using RNG = std::default_random_engine;
  */
 void randomizedThreePartQuicksort(iter begin, iter end, RNG& rng)
 {
-     std::uniform_int_distribution<int> dist(std::distance(begin, end) - 1);
-        iter pivot_it = begin + dist(rng);
-        int pivot = *pivot_it;
+    if (begin == end) return;
 
-        iter left = begin;
-        iter right = end - 1;
+    // Shuffle the elements randomly
+    std::shuffle(begin, end, rng);
+    auto pivot = *begin;
 
-        while (left <= right) {
-            while (*left < pivot) {
-                ++left;
-            }
-            while (*right > pivot) {
-                --right;
-            }
-            if (left <= right) {
-                std::iter_swap(left, right);
-                ++left;
-                --right;
-            }
+    iter low = begin;
+    iter high = end - 1;
+    iter i = begin + 1;
+
+    while (i <= high) {
+        if (*i < pivot) {
+            std::iter_swap(i, low);
+            ++low;
+            ++i;
+        } else if (*i > pivot) {
+            std::iter_swap(i, high);
+            --high;
+        } else {
+            ++i;
         }
-        iter middle1 = left;
-        iter middle2 = left;
+    }
 
-        while (middle2 <= end - 1 && *middle2 == pivot) {
-            ++middle2;
-        }
-        
-        randomizedThreePartQuicksort(begin, right + 1, rng);   
-        randomizedThreePartQuicksort(middle2, end, rng);        
-
-        if (pivot != *middle1) {
-            randomizedThreePartQuicksort(middle1, middle2, rng); // Sort elements equal to pivot
-        }
-
-        begin = middle2;
+    randomizedThreePartQuicksort(begin, low, rng);
+    randomizedThreePartQuicksort(high + 1, end, rng);
 }
+

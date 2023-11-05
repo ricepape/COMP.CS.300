@@ -24,20 +24,21 @@ void randomizedThreePartQuicksort(iter begin, iter end, RNG& rng)
 {
     if (begin == end) return;
 
-    // Shuffle the elements randomly
-    std::shuffle(begin, end, rng);
-    auto pivot = *begin;
+    std::uniform_int_distribution<size_t> dist(0, std::distance(begin, end) - 1);
+    iter pivot = begin + dist(rng);
+
+    auto pivot_value = *pivot;
 
     iter low = begin;
     iter high = end - 1;
-    iter i = begin + 1;
+    iter i = begin;
 
     while (i <= high) {
-        if (*i < pivot) {
+        if (*i < pivot_value) {
             std::iter_swap(i, low);
             ++low;
             ++i;
-        } else if (*i > pivot) {
+        } else if (*i > pivot_value) {
             std::iter_swap(i, high);
             --high;
         } else {

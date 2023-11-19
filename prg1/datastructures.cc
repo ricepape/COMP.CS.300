@@ -10,6 +10,8 @@
 
 #include <cmath>
 
+using namespace std;
+
 std::minstd_rand rand_engine; // Reasonably quick pseudo-random generator
 
 template <typename Type>
@@ -29,9 +31,7 @@ Type random_in_range(Type start, Type end)
 // warning about unused parameters on operations you haven't yet implemented.)
 
 Datastructures::Datastructures()
-{
-    // Write any initialization you need here
-}
+{}
 
 Datastructures::~Datastructures()
 {
@@ -40,50 +40,60 @@ Datastructures::~Datastructures()
 
 unsigned int Datastructures::get_affiliation_count()
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("get_affiliation_count()");
+    return static_cast<int>(affiliation_data.size());
 }
 
 void Datastructures::clear_all()
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("clear_all()");
+    affiliation_data.clear();
 }
 
 std::vector<AffiliationID> Datastructures::get_all_affiliations()
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("get_all_affiliations()");
+    std::vector<AffiliationID> all_affiliations;
+    for (const auto& pair : affiliation_data)
+    {
+        all_affiliations.push_back(pair.first);
+    }
+    return all_affiliations;
 }
 
-bool Datastructures::add_affiliation(AffiliationID /*id*/, const Name &/*name*/, Coord /*xy*/)
+bool Datastructures::add_affiliation(AffiliationID id, const Name &name, Coord xy)
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("add_affiliation()");
+    AffiliationData new_aff;
+    new_aff.name = id;
+    new_aff.coordinates = xy;
+    affiliation_data.insert(id, new_aff);
 }
 
-Name Datastructures::get_affiliation_name(AffiliationID /*id*/)
+Name Datastructures::get_affiliation_name(AffiliationID id)
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("get_affiliation_name()");
+    return affiliation_data[id].name;
 }
 
 Coord Datastructures::get_affiliation_coord(AffiliationID /*id*/)
 {
     // Replace the line below with your implementation
-    throw NotImplemented("get_affiliation_coord()");
+    return affiliation_data[id].coordinates;
 }
 
 std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("get_affiliations_alphabetically()");
+    std::vector<AffiliationID> all_affiliations;
+    data = affiliation_data(data.begin(), data.end(), compareName);
+
+    for (const auto& pair : data)
+    {
+        all_affiliations.push_back(pair.first);
+    }
+
+    return all_affiliations;
+
 }
 
 std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing()
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("get_affiliations_distance_increasing()");
+    
 }
 
 AffiliationID Datastructures::find_affiliation_with_coord(Coord /*xy*/)
@@ -200,4 +210,9 @@ bool Datastructures::remove_publication(PublicationID /*publicationid*/)
     throw NotImplemented("remove_publication()");
 }
 
+struct CompareName {
+    bool operator()(const std::pair<AffiliationID, AffiliationData>& a, const std::pair<AffiliationID, AffiliationData>& b) const {
+        return a.second.name < b.second.name;
+    }
+};
 

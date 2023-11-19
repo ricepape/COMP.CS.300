@@ -1,8 +1,8 @@
 // Datastructures.hh
 //
-// Student name:
-// Student email:
-// Student number:
+// Student name: Vu Dinh Thi
+// Student email: thi.vu@tuni.fi
+// Student number: 151394898
 
 #ifndef DATASTRUCTURES_HH
 #define DATASTRUCTURES_HH
@@ -14,6 +14,10 @@
 #include <limits>
 #include <functional>
 #include <exception>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
+
 
 // Types for IDs
 using AffiliationID = std::string;
@@ -216,7 +220,22 @@ public:
 
 
 private:
+    struct AffiliationData {
+        Name name;
+        Coord coordinates;
+    };
 
+    std::unordered_map<AffiliationID, AffiliationData> affiliation_data;
+
+    struct PublicationData {
+        Name name;
+        Year publication_year;
+        std::unordered_set<AffiliationID> affiliations;
+        std::unordered_set<PublicationData*> referencing;
+        PublicationData* referenced_by = nullptr;
+    };
+
+    std::unordered_map<PublicationID, PublicationData> publications_data;
 };
 
 #endif // DATASTRUCTURES_HH

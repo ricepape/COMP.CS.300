@@ -230,8 +230,8 @@ private:
     struct PublicationData {
         Name name;
         Year publication_year;
-        std::unordered_set<AffiliationID> affiliations;
-        std::unordered_set<PublicationData*> referencing;
+        std::vector<AffiliationID> affiliations;
+        std::unordered_set<std::unordered_map<PublicationID, PublicationData>*> referencing;
         PublicationData* referenced_by = nullptr;
     };
 

@@ -74,12 +74,19 @@ bool Datastructures::add_affiliation(AffiliationID id, const Name &name, Coord x
 
 Name Datastructures::get_affiliation_name(AffiliationID id)
 {
+    auto findit = affiliation_data.find(id);
+    if (findit == affiliation_data.end()) {
+        return NO_NAME;
+    }
     return affiliation_data[id].name;
 }
 
 Coord Datastructures::get_affiliation_coord(AffiliationID id)
 {
-
+    auto findit = affiliation_data.find(id);
+    if (findit == affiliation_data.end()) {
+        return NO_COORD;
+    }
     return affiliation_data[id].coordinates;
 }
 
@@ -193,21 +200,31 @@ std::vector<AffiliationID> Datastructures::get_affiliations(PublicationID id)
 
 bool Datastructures::add_reference(PublicationID id, PublicationID parentid)
 {
-    if ((publications_data.find(id) != publications_data.end()) && 
-    (publications_data.find(parentid) != publications_data.end())) {
-        publications_data[id].affiliations.push_back(parentid);
-        return true;    
-    } else {
+    auto iter_id = publications_data.find(id);
+    auto iter_parentid = publications_data.find(parentid);
+
+    if (iter_id == publications_data.end() || iter_parentid != publications_data.end()) {
         return false;
     }
+    PublicationID* child = &id;
+    publications_data[parentid].referencing.insert(child);
+    PublicationID* parent = &parentid;
+    publications_data[id].referenced_by = parent;
+    return true;
+    
 }
 
 std::vector<PublicationID> Datastructures::get_direct_references(PublicationID id)
 {
     std::vector<PublicationID> references;
-    for for (const PublicationID &number : data){
-        cout << number;
+    auto iter_id = publications_data.find(id);
+
+    if (iter_id != publications_data.end()) {
+        for (const auto& ref : iter_id->second.referencing) {
+            references.push_back(*ref);
+        }
     }
+    return references;
 }
 
 bool Datastructures::add_affiliation_to_publication(AffiliationID affiliationid, PublicationID publicationid)
@@ -243,7 +260,7 @@ PublicationID Datastructures::get_parent(PublicationID id)
             return *publication_ptr;
         }
     }
-    return PublicationID();
+    return NO_PUBLICATION;
 }
 
 std::vector<std::pair<Year, PublicationID> > Datastructures::get_publications_after(AffiliationID affiliationid, Year year)

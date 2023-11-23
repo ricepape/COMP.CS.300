@@ -191,20 +191,14 @@ std::vector<AffiliationID> Datastructures::get_affiliations(PublicationID id)
 
 bool Datastructures::add_reference(PublicationID id, PublicationID parentid)
 {
-    if ((publications_data.find(id) != publications_data.end()) && 
-    (publications_data.find(parentid) != publications_data.end())) {
-        publications_data[id].affiliations.push_back(parentid);
-        return true;    
-    } else {
-        return false;
-    }
+
 }
 
 std::vector<PublicationID> Datastructures::get_direct_references(PublicationID id)
 {
-    std::vector<PublicationID> references;
-    for for (const PublicationID &number : data){
-        cout << number;
+    std::vector<PublicationID> publications_data;
+    for (const PublicationID* &publications_data[id].referencing : reference){
+        
     }
 }
 

@@ -206,10 +206,8 @@ bool Datastructures::add_reference(PublicationID id, PublicationID parentid)
     if (iter_id == publications_data.end() || iter_parentid == publications_data.end()) {
         return false;
     }
-    PublicationID* child = &id;
-    publications_data[parentid].referencing.insert(child);
-    PublicationID* parent = &parentid;
-    publications_data[id].referenced_by = parent;
+    publications_data[parentid].referencing.insert(id);
+    publications_data[id].referenced_by = parentid;
     return true;
     
 }
@@ -221,7 +219,7 @@ std::vector<PublicationID> Datastructures::get_direct_references(PublicationID i
 
     if (iter_id != publications_data.end()) {
         for (const auto& ref : iter_id->second.referencing) {
-            references.push_back(*ref);
+            references.push_back(ref);
         }
     }
     return references;
@@ -255,8 +253,7 @@ PublicationID Datastructures::get_parent(PublicationID id)
 {
     auto it = publications_data.find(id);
     if (it != publications_data.end()) {
-        PublicationID* publication_ptr = it->second.referenced_by;
-        return *publication_ptr;
+        return it->second.referenced_by;
     }
     return NO_PUBLICATION;
 }
@@ -293,15 +290,20 @@ std::vector<std::pair<Year, PublicationID> > Datastructures::get_publications_af
 std::vector<PublicationID> Datastructures::get_referenced_by_chain(PublicationID id)
 {
     std::vector<PublicationID> publication_chain;
+
         auto it = publications_data.find(id);
         if (it == publications_data.end()) {
             return {NO_PUBLICATION};
         }
 
-        PublicationID* publication_ptr = it->second.referenced_by;
-        while (publication_ptr != nullptr) {
-            publication_chain.push_back(*publication_ptr);
-            publication_ptr = publications_data[*publication_ptr].referenced_by;
+        PublicationID publication = it->second.referenced_by;
+        while (publication != NO_PUBLICATION) {
+            publication_chain.push_back(publication);
+            auto iter = publications_data.find(publication);
+            if (iter == publications_data.end()) {
+                break;
+            }
+            publication = iter->second.referenced_by;
         }
 
         return publication_chain;

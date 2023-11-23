@@ -206,10 +206,8 @@ bool Datastructures::add_reference(PublicationID id, PublicationID parentid)
     if (iter_id == publications_data.end() || iter_parentid != publications_data.end()) {
         return false;
     }
-    PublicationID* child = &id;
-    publications_data[parentid].referencing.insert(child);
-    PublicationID* parent = &parentid;
-    publications_data[id].referenced_by = parent;
+    publications_data[parentid].referencing.insert(id);
+    publications_data[id].referenced_by = parentid;
     return true;
     
 }
@@ -221,7 +219,7 @@ std::vector<PublicationID> Datastructures::get_direct_references(PublicationID i
 
     if (iter_id != publications_data.end()) {
         for (const auto& ref : iter_id->second.referencing) {
-            references.push_back(*ref);
+            references.push_back(ref);
         }
     }
     return references;
@@ -255,9 +253,9 @@ PublicationID Datastructures::get_parent(PublicationID id)
 {
     auto it = publications_data.find(id);
     if (it != publications_data.end()) {
-        PublicationID* publication_ptr = it->second.referenced_by;
-        if (publication_ptr != nullptr) {
-            return *publication_ptr;
+        PublicationID publication_ptr = it->second.referenced_by;
+        if (publication_ptr != NO_PUBLICATION) {
+            return publication_ptr;
         }
     }
     return NO_PUBLICATION;
@@ -289,11 +287,12 @@ std::vector<std::pair<Year, PublicationID> > Datastructures::get_publications_af
         return a.second < b.second;
     };
 
-    std::sort(publications.begin(), publications.end(), compareYear);
-
     if (publications.empty()) {
         publications.push_back({NO_YEAR, NO_PUBLICATION});
     }
+    std::sort(publications.begin(), publications.end(), compareYear);
+
+
     return publications;
 }
 
@@ -305,10 +304,10 @@ std::vector<PublicationID> Datastructures::get_referenced_by_chain(PublicationID
         return {NO_PUBLICATION};
     }
 
-    PublicationID* publication_ptr = it->second.referenced_by;
-    while (publication_ptr != nullptr) {
-        publication_chain.push_back(*publication_ptr);
-        publication_ptr = publications_data[*publication_ptr].referenced_by;
+    PublicationID publication_ptr = it->second.referenced_by;
+    while (publication_ptr != NO_PUBLICATION) {
+        publication_chain.push_back(publication_ptr);
+        publication_ptr = publications_data[publication_ptr].referenced_by;
     }
 
     return publication_chain;

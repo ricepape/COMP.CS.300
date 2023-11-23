@@ -1,8 +1,8 @@
 // Datastructures.cc
 //
-// Student name:
-// Student email:
-// Student number:
+// Student name: Vu Dinh Thi
+// Student email: thi.vu@tuni.fi
+// Student number: 151394898
 
 #include "datastructures.hh"
 
@@ -85,33 +85,35 @@ Coord Datastructures::get_affiliation_coord(AffiliationID id)
 
 std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 {
-    std::vector<AffiliationID> all_affiliations;
-    data = affiliation_data(data.begin(), data.end(), compareName);
 
-    for (const auto& pair : data)
-    {
+    auto compareName = [](const std::pair<AffiliationID, AffiliationData>& a, const std::pair<AffiliationID, AffiliationData>& b) {
+        return a.second.name < b.second.name;
+    };
+
+    std::vector<std::pair<AffiliationID, AffiliationData>> data(affiliation_data.begin(), affiliation_data.end());
+
+    std::sort(data.begin(), data.end(), compareName);
+
+    std::vector<AffiliationID> all_affiliations;
+    for (const auto& pair : data) {
         all_affiliations.push_back(pair.first);
     }
-    return all_affiliations;
 
+    return all_affiliations;
 }
+
 
 std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing()
 {
-    // Create a vector to store affiliations and their distances
     std::vector<std::pair<AffiliationID, double>> affiliations_with_distances;
-
-    // Calculate distances for each affiliation and store in the vector
     for (const auto& pair : affiliation_data)
     {
         double distance = std::sqrt(
-            std::pow(pair.second.coordinates.first, 2) +
-            std::pow(pair.second.coordinates.second, 2)
+            std::pow(pair.second.coordinates.x, 2) +
+            std::pow(pair.second.coordinates.y, 2)
         );
         affiliations_with_distances.push_back({pair.first, distance});
     }
-
-    // Sort the vector based on distances in increasing order
     std::sort(
         affiliations_with_distances.begin(),
         affiliations_with_distances.end(),
@@ -120,7 +122,6 @@ std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing(
         }
     );
 
-    // Extract and return the sorted AffiliationIDs
     std::vector<AffiliationID> sorted_affiliations;
     for (const auto& pair : affiliations_with_distances)
     {
@@ -136,8 +137,9 @@ AffiliationID Datastructures::find_affiliation_with_coord(Coord xy)
     {
         if (pair.second.coordinates == xy){
             return pair.first;
+        }
     }
-    }
+    return NO_AFFILIATION;
 }
 
 bool Datastructures::change_affiliation_coord(AffiliationID id, Coord newcoord)
@@ -169,7 +171,7 @@ std::vector<PublicationID> Datastructures::all_publications()
     std::vector<PublicationID> all_publications;
     for (const auto& pair : publications_data)
     {
-        publications_data.push_back(pair.first);
+        all_publications.push_back(pair.first);
     }
     return all_publications;
 }
@@ -191,14 +193,20 @@ std::vector<AffiliationID> Datastructures::get_affiliations(PublicationID id)
 
 bool Datastructures::add_reference(PublicationID id, PublicationID parentid)
 {
-
+    if ((publications_data.find(id) != publications_data.end()) && 
+    (publications_data.find(parentid) != publications_data.end())) {
+        publications_data[id].affiliations.push_back(parentid);
+        return true;    
+    } else {
+        return false;
+    }
 }
 
 std::vector<PublicationID> Datastructures::get_direct_references(PublicationID id)
 {
-    std::vector<PublicationID> publications_data;
-    for (const PublicationID* &publications_data[id].referencing : reference){
-        
+    std::vector<PublicationID> references;
+    for for (const PublicationID &number : data){
+        cout << number;
     }
 }
 
@@ -218,29 +226,75 @@ std::vector<PublicationID> Datastructures::get_publications(AffiliationID id)
     std::vector<PublicationID> publications;
     for (const auto& pair : publications_data)
     {
-        if (pair.second.affiliations.find(id) != affiliation_data.end()){
+        if (std::find(pair.second.affiliations.begin(), pair.second.affiliations.end(), id) != pair.second.affiliations.end())
+        {
             publications.push_back(pair.first);
+        }
     }
     return publications;
+}
+
+PublicationID Datastructures::get_parent(PublicationID id)
+{
+    auto it = publications_data.find(id);
+    if (it != publications_data.end()) {
+        PublicationID* publication_ptr = it->second.referenced_by;
+        if (publication_ptr != nullptr) {
+            return *publication_ptr;
+        }
     }
+    return PublicationID();
 }
 
-PublicationID Datastructures::get_parent(PublicationID /*id*/)
+std::vector<std::pair<Year, PublicationID> > Datastructures::get_publications_after(AffiliationID affiliationid, Year year)
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("get_parent()");
+    std::vector<std::pair<Year, PublicationID>> publications;
+    auto it = affiliation_data.find(affiliationid);
+    if (it == affiliation_data.end()) {
+        publications.push_back({NO_YEAR, NO_PUBLICATION});
+        return publications;
+    }
+    for (const auto& pair : publications_data)
+    {
+        if (std::find(pair.second.affiliations.begin(), pair.second.affiliations.end(), affiliationid)!= pair.second.affiliations.end()){
+            if (pair.second.publication_year >= year){
+                publications.push_back({pair.second.publication_year, pair.first});
+            }
+        }
+    }
+    auto compareYear = [](const std::pair<Year, PublicationID>& a, const std::pair<Year, PublicationID>& b) {
+        if (a.first < b.first) {
+            return true;
+        }
+        if (a.first > b.first) {
+            return false;
+        }
+        return a.second < b.second;
+    };
+
+    std::sort(publications.begin(), publications.end(), compareYear);
+
+    if (publications.empty()) {
+        publications.push_back({NO_YEAR, NO_PUBLICATION});
+    }
+    return publications;
 }
 
-std::vector<std::pair<Year, PublicationID> > Datastructures::get_publications_after(AffiliationID /*affiliationid*/, Year /*year*/)
+std::vector<PublicationID> Datastructures::get_referenced_by_chain(PublicationID id)
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("get_publications_after()");
-}
+    std::vector<PublicationID> publication_chain;
+    auto it = publications_data.find(id);
+    if (it == publications_data.end()) {
+        return {NO_PUBLICATION};
+    }
 
-std::vector<PublicationID> Datastructures::get_referenced_by_chain(PublicationID /*id*/)
-{
-    // Replace the line below with your implementation
-    throw NotImplemented("get_referenced_by_chain()");
+    PublicationID* publication_ptr = it->second.referenced_by;
+    while (publication_ptr != nullptr) {
+        publication_chain.push_back(*publication_ptr);
+        publication_ptr = publications_data[*publication_ptr].referenced_by;
+    }
+
+    return publication_chain;
 }
 
 std::vector<PublicationID> Datastructures::get_all_references(PublicationID /*id*/)

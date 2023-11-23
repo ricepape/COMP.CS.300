@@ -228,11 +228,11 @@ private:
     std::unordered_map<AffiliationID, AffiliationData> affiliation_data;
 
     struct PublicationData {
-        Name name;
-        Year publication_year;
-        std::vector<AffiliationID> affiliations;
-        std::unordered_set<std::unordered_map<PublicationID, PublicationData>*> referencing;
-        PublicationData* referenced_by = nullptr;
+       Name name;
+       Year publication_year;
+       std::vector<AffiliationID> affiliations;
+       std::unordered_set<PublicationID*> referencing;
+       PublicationID* referenced_by = nullptr;
     };
 
     std::unordered_map<PublicationID, PublicationData> publications_data;

@@ -74,12 +74,19 @@ bool Datastructures::add_affiliation(AffiliationID id, const Name &name, Coord x
 
 Name Datastructures::get_affiliation_name(AffiliationID id)
 {
+    auto findit = affiliation_data.find(id);
+    if (findit == affiliation_data.end()) {
+        return NO_NAME;
+    }
     return affiliation_data[id].name;
 }
 
 Coord Datastructures::get_affiliation_coord(AffiliationID id)
 {
-
+    auto findit = affiliation_data.find(id);
+    if (findit == affiliation_data.end()) {
+        return NO_COORD;
+    }
     return affiliation_data[id].coordinates;
 }
 
@@ -253,7 +260,7 @@ PublicationID Datastructures::get_parent(PublicationID id)
             return *publication_ptr;
         }
     }
-    return PublicationID();
+    return NO_PUBLICATION;
 }
 
 std::vector<std::pair<Year, PublicationID> > Datastructures::get_publications_after(AffiliationID affiliationid, Year year)

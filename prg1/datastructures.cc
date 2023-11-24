@@ -293,7 +293,7 @@ std::vector<PublicationID> Datastructures::get_referenced_by_chain(PublicationID
 
         auto it = publications_data.find(id);
         if (it == publications_data.end()) {
-            return publication_chain;
+            return {NO_PUBLICATION};
         }
 
         PublicationID publication = it->second.referenced_by;

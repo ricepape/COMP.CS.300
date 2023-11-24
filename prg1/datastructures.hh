@@ -232,7 +232,7 @@ private:
        Year publication_year;
        std::vector<AffiliationID> affiliations;
        std::unordered_set<PublicationID> referencing;
-       PublicationID referenced_by;
+       PublicationID referenced_by = NO_PUBLICATION;
     };
 
     std::unordered_map<PublicationID, PublicationData> publications_data;

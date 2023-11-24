@@ -129,7 +129,10 @@ AffiliationID Datastructures::find_affiliation_with_coord(Coord xy)
 bool Datastructures::change_affiliation_coord(AffiliationID id, Coord newcoord)
 {
      if (affiliation_data.find(id) != affiliation_data.end()) {
+        old = affiliation_data[id].coordinates;
         affiliation_data[id].coordinates = newcoord;
+        affiliations_with_distances.erase(old);
+        affiliations_with_distances[newcoord] = id;
         return true;
     } else {
         return false;

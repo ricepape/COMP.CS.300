@@ -47,6 +47,8 @@ void Datastructures::clear_all()
 {
     affiliation_data.clear();
     publications_data.clear();
+    affiliations_with_distances.clear();
+    affiliations_with_names.clear();
 }
 
 std::vector<AffiliationID> Datastructures::get_all_affiliations()

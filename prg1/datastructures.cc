@@ -252,7 +252,7 @@ std::vector<PublicationID> Datastructures::get_publications(AffiliationID id)
 PublicationID Datastructures::get_parent(PublicationID id)
 {
     auto it = publications_data.find(id);
-    if (it != publications_data.end()) {
+    if (it != publications_data.end() && it->second.referenced_by != NO_PUBLICATION) {
         return it->second.referenced_by;
     }
     return NO_PUBLICATION;
@@ -291,22 +291,22 @@ std::vector<PublicationID> Datastructures::get_referenced_by_chain(PublicationID
 {
     std::vector<PublicationID> publication_chain;
 
-        auto it = publications_data.find(id);
-        if (it == publications_data.end()) {
-            return {NO_PUBLICATION};
-        }
+    auto it = publications_data.find(id);
+    if (it == publications_data.end()) {
+        return {NO_PUBLICATION};
+    }
 
-        PublicationID publication = it->second.referenced_by;
-        while (publication != NO_PUBLICATION) {
-            publication_chain.push_back(publication);
-            auto iter = publications_data.find(publication);
-            if (iter == publications_data.end()) {
-                break;
-            }
-            publication = iter->second.referenced_by;
+    PublicationID publication = it->second.referenced_by;
+    while (publication != NO_PUBLICATION) {
+        publication_chain.push_back(publication);
+        auto iter = publications_data.find(publication);
+        if (iter == publications_data.end()) {
+            break;
         }
+        publication = iter->second.referenced_by;
+    }
 
-        return publication_chain;
+    return publication_chain;
 }
 
 std::vector<PublicationID> Datastructures::get_all_references(PublicationID /*id*/)

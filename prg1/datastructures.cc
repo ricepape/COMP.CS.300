@@ -67,6 +67,8 @@ bool Datastructures::add_affiliation(AffiliationID id, const Name &name, Coord x
         new_aff.name = name;  
         new_aff.coordinates = xy;
         affiliation_data[id] = new_aff; 
+        affiliations_with_distances[xy] = id;
+        affiliations_with_names[name] = id;
         return true;
     }
     return false;
@@ -92,47 +94,22 @@ Coord Datastructures::get_affiliation_coord(AffiliationID id)
 
 std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 {
-
-    auto compareName = [](const std::pair<AffiliationID, AffiliationData>& a, const std::pair<AffiliationID, AffiliationData>& b) {
-        return a.second.name < b.second.name;
-    };
-
-    std::vector<std::pair<AffiliationID, AffiliationData>> data(affiliation_data.begin(), affiliation_data.end());
-
-    std::sort(data.begin(), data.end(), compareName);
-
-    std::vector<AffiliationID> all_affiliations;
-    for (const auto& pair : data) {
-        all_affiliations.push_back(pair.first);
+    std::vector<AffiliationID> sorted_affiliations;
+    for (const auto& pair : affiliations_with_names)
+    {
+        sorted_affiliations.push_back(pair.second);
     }
 
-    return all_affiliations;
+    return sorted_affiliations;
 }
 
 
 std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing()
 {
-    std::vector<std::pair<AffiliationID, double>> affiliations_with_distances;
-    for (const auto& pair : affiliation_data)
-    {
-        double distance = std::sqrt(
-            std::pow(pair.second.coordinates.x, 2) +
-            std::pow(pair.second.coordinates.y, 2)
-        );
-        affiliations_with_distances.push_back({pair.first, distance});
-    }
-    std::sort(
-        affiliations_with_distances.begin(),
-        affiliations_with_distances.end(),
-        [](const auto& a, const auto& b) {
-            return a.second < b.second;
-        }
-    );
-
     std::vector<AffiliationID> sorted_affiliations;
     for (const auto& pair : affiliations_with_distances)
     {
-        sorted_affiliations.push_back(pair.first);
+        sorted_affiliations.push_back(pair.second);
     }
 
     return sorted_affiliations;
@@ -140,13 +117,11 @@ std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing(
 
 AffiliationID Datastructures::find_affiliation_with_coord(Coord xy)
 {
-    for (const auto& pair : affiliation_data)
-    {
-        if (pair.second.coordinates == xy){
-            return pair.first;
-        }
+    auto findit = affiliations_with_distances.find(xy);
+    if (findit == affiliations_with_distances.end()) {
+        return NO_AFFILIATION;
     }
-    return NO_AFFILIATION;
+    return affiliations_with_distances[xy];
 }
 
 bool Datastructures::change_affiliation_coord(AffiliationID id, Coord newcoord)

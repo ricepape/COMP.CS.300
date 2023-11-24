@@ -17,6 +17,7 @@
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
+#include <math.h>
 
 
 // Types for IDs
@@ -235,7 +236,21 @@ private:
        PublicationID referenced_by = NO_PUBLICATION;
     };
 
+    struct DistanceComparator{
+        bool operator()(Coord x1, Coord x2) const {
+            if (std::sqrt(std::pow(x1.x, 2)+std::pow(x1.y, 2)) < std::sqrt(std::pow(x2.x, 2)+std::pow(x2.y, 2))){
+                return true;
+            }
+            if (std::sqrt(std::pow(x1.x, 2)+std::pow(x1.y, 2)) > std::sqrt(std::pow(x2.x, 2)+std::pow(x2.y, 2))){
+                return false;
+            }
+            else return x1.y < x2.y;
+        }
+    };
+
     std::unordered_map<PublicationID, PublicationData> publications_data;
+    std::map<Coord, AffiliationID, DistanceComparator> affiliations_with_distances;
+    std::map<Name, AffiliationID> affiliations_with_names;
 };
 
 #endif // DATASTRUCTURES_HH

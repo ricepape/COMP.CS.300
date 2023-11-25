@@ -373,6 +373,9 @@ bool Datastructures::remove_publication(PublicationID publicationid)
         if (pair.second.referenced_by == publicationid){
             pair.second.referenced_by = NO_PUBLICATION;
         }
+    }
+    
+    for (auto& pair : publications_data) {
         auto it2 = pair.second.referencing.find(publicationid);
         if (it2 != pair.second.referencing.end()){
             pair.second.referencing.erase(publicationid);

@@ -273,6 +273,8 @@ private:
     std::map<Name, AffiliationID> affiliations_with_names;
     std::unordered_map<AffiliationID, std::unordered_map<Year, PublicationID>> affiliations_with_years;
     std::vector<AffiliationID> sorted_affiliations;
+    std::vector<AffiliationID> all_affiliations;
+    std::vector<PublicationID> all_publications;
 };
 
 #endif // DATASTRUCTURES_HH

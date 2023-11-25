@@ -49,8 +49,6 @@ void Datastructures::clear_all()
     publications_data.clear();
     affiliations_with_distances.clear();
     affiliations_with_names.clear();
-    sorted_affiliations_alphabetically.clear();
-    sorted_affiliations_distance.clear();
     affiliations_with_years.clear();
 }
 
@@ -99,6 +97,7 @@ Coord Datastructures::get_affiliation_coord(AffiliationID id)
 
 std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 {
+    std::vector<AffiliationID> sorted_affiliations_alphabetically;
     sorted_affiliations_alphabetically.reserve(affiliations_with_names.size());
 
     std::transform(affiliations_with_names.begin(), affiliations_with_names.end(),
@@ -111,14 +110,14 @@ std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 
 std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing()
 {
+    std::vector<AffiliationID> sorted_affiliations_distance;
+    sorted_affiliations_distance.reserve(affiliations_with_distances.size());
 
-        sorted_affiliations_distance.reserve(affiliations_with_distances.size());
-
-        std::transform(affiliations_with_distances.begin(), affiliations_with_distances.end(),
+    std::transform(affiliations_with_distances.begin(), affiliations_with_distances.end(),
                        std::back_inserter(sorted_affiliations_distance),
                        [](const auto& pair) { return pair.second; });
 
-        return sorted_affiliations_distance;
+    return sorted_affiliations_distance;
 }
 
 AffiliationID Datastructures::find_affiliation_with_coord(Coord xy)

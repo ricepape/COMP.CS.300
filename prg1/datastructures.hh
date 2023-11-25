@@ -272,8 +272,8 @@ private:
     std::map<Coord, AffiliationID, DistanceComparator> affiliations_with_distances;
     std::map<Name, AffiliationID> affiliations_with_names;
     std::unordered_map<AffiliationID, std::unordered_map<Year, PublicationID>> affiliations_with_years;
-    std::vector<AffiliationID> sorted_affiliations_alphabetically;
-    std::vector<AffiliationID> sorted_affiliations_distance;
+
+
 };
 
 #endif // DATASTRUCTURES_HH

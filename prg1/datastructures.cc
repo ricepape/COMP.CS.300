@@ -230,7 +230,7 @@ std::vector<PublicationID> Datastructures::get_publications(AffiliationID id)
     all_publications_vec.clear();
     auto findit = affiliation_data.find(id);
     if (findit == affiliation_data.end()) {
-        return all_publications_vec;
+        return {NO_PUBLICATION};
     }
     for (const auto& pair : publications_data)
     {

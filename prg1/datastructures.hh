@@ -227,8 +227,9 @@ public:
     // Short rationale for estimate:
     std::vector<AffiliationID> get_affiliations_closest_to(Coord xy);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n^2)
+    // Short rationale for estimate: Go through all elements in the given map to access
+    // to the AffiliationID vector, then from that delete the given id.
     bool remove_affiliation(AffiliationID id);
 
     // Estimate of performance:

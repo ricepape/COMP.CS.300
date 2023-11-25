@@ -308,17 +308,42 @@ std::vector<AffiliationID> Datastructures::get_affiliations_closest_to(Coord /*x
 
 bool Datastructures::remove_affiliation(AffiliationID id)
 {
+   auto findit = affiliation_data.find(id);
+   if (findit == affiliation_data.end()) {
+        return false;
+   }
+   auto findit2 = affiliations_with_years.find(id);
+   if (findit2 != affiliations_with_years.end()) {
+        affiliations_with_years.erase(id);
+   }
    affiliation_data.erase(id);
-   affiliations_with_years.erase(id);
-   for (const auto& pair : publications_data)
+   for (auto& pair : publications_data)
     {
-        for (const auto& pair2 : pair.second.affiliations)
-        {
-            if (pair2 == id){
-                publications.push_back(pair);
-            }
-        }
+       auto position = std::find(pair.second.affiliations.begin(), pair.second.affiliations.end(), id);
+       if (position != pair.second.affiliations.end()){
+           pair.second.affiliations.erase(position);
+       }
     }
+   for (auto& pair : affiliations_with_names)
+    {
+       if (pair.second == id){
+           affiliations_with_names.erase(pair.first);
+       }
+    }
+   for (auto& pair : affiliations_with_distances)
+    {
+       if (pair.second == id){
+           affiliations_with_distances.erase(pair.first);
+       }
+    }
+   for (auto& pair : affiliations_with_distances)
+    {
+       if (pair.second == id){
+           affiliations_with_distances.erase(pair.first);
+       }
+    }
+   return true;
+
 }
 
 

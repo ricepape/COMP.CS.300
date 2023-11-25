@@ -236,8 +236,9 @@ public:
     // Short rationale for estimate:
     PublicationID get_closest_common_parent(PublicationID id1, PublicationID id2);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n^2)
+    // Short rationale for estimate:Go through all elements in the given map to access
+    // to the PublicationID set, then from that delete the given id.
     bool remove_publication(PublicationID publicationid);
 
 

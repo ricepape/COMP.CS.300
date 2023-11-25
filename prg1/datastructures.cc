@@ -310,10 +310,34 @@ std::vector<PublicationID> Datastructures::get_all_references(PublicationID /*id
     throw NotImplemented("get_all_references()");
 }
 
-std::vector<AffiliationID> Datastructures::get_affiliations_closest_to(Coord /*xy*/)
+std::vector<AffiliationID> Datastructures::get_affiliations_closest_to(Coord xy)
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("get_affiliations_closest_to()");
+    std::vector<std::pair<double, AffiliationID>> distances;
+
+        // Calculate distances and store them in the vector
+        for (const auto& affiliation : affiliations_with_distances) {
+            double distance = std::sqrt(
+                (xy.x - affiliation.first.x) * (xy.x - affiliation.first.x) +
+                (xy.y - affiliation.first.y) * (xy.y - affiliation.first.y)
+            );
+            distances.emplace_back(distance, affiliation.second);
+        }
+
+        // Sort the vector based on distances
+        std::sort(distances.begin(), distances.end(), [](const auto& a, const auto& b) {
+            return a.first < b.first || (a.first == b.first && a.second < b.second);
+        });
+
+        // Extract the affiliation IDs up to three or all if less than three
+        std::vector<AffiliationID> result;
+        for (const auto& pair : distances) {
+            result.push_back(pair.second);
+            if (result.size() >= 3) {
+                break;
+            }
+        }
+
+        return result;
 }
 
 bool Datastructures::remove_affiliation(AffiliationID id)
@@ -361,7 +385,9 @@ bool Datastructures::remove_publication(PublicationID publicationid)
     if (it == publications_data.end()) {
         return false;
     }
+
     publications_data.erase(it);
+
     for (auto& pair : affiliations_with_years) {
         for (auto& publications_map : pair.second) {
             if (publications_map.second == publicationid){
@@ -369,6 +395,7 @@ bool Datastructures::remove_publication(PublicationID publicationid)
             }
         }
     }
+
     for (auto& pair : publications_data) {
         if (pair.second.referenced_by == publicationid){
             pair.second.referenced_by = NO_PUBLICATION;
@@ -378,7 +405,7 @@ bool Datastructures::remove_publication(PublicationID publicationid)
     for (auto& pair : publications_data) {
         auto it2 = pair.second.referencing.find(publicationid);
         if (it2 != pair.second.referencing.end()){
-            pair.second.referencing.erase(publicationid);
+            pair.second.referencing.erase(it2);
         }
     }
     return true;

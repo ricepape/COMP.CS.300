@@ -164,6 +164,7 @@ bool Datastructures::add_publication(PublicationID id, const Name &name, Year ye
 std::vector<PublicationID> Datastructures::all_publications()
 {
     all_publications_vec.clear();
+
     for (const auto& pair : publications_data)
     {
         all_publications_vec.push_back(pair.first);
@@ -177,7 +178,7 @@ Name Datastructures::get_publication_name(PublicationID id)
     if (it == publications_data.end()) {
         return NO_NAME;
     }
-    
+
     return publications_data[id].name;
 }
 
@@ -360,7 +361,7 @@ bool Datastructures::remove_publication(PublicationID publicationid)
     if (it == publications_data.end() || publications_data.empty()) {
         return false;
     }
-    publications_data.erase(it);
+    publications_data.erase(publicationid);
     for (auto& pair : affiliations_with_years) {
         for (auto& publications_map : pair.second) {
             if (publications_map.second == publicationid){
@@ -374,7 +375,7 @@ bool Datastructures::remove_publication(PublicationID publicationid)
         }
         auto it = pair.second.referencing.find(publicationid);
         if (it != pair.second.referencing.end()){
-            pair.second.referencing.erase(*it);
+            pair.second.referencing.erase(publicationid);
         }
     }
     return true;

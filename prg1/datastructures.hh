@@ -258,10 +258,10 @@ private:
 
     struct DistanceComparator{
         bool operator()(Coord x1, Coord x2) const {
-            if (std::sqrt(std::pow(x1.x, 2)+std::pow(x1.y, 2)) < std::sqrt(std::pow(x2.x, 2)+std::pow(x2.y, 2))){
+            if (std::sqrt(x1.x*x1.x+x1.y*x1.y) < std::sqrt(x2.x*x2.x+x2.y*x2.y)){
                 return true;
             }
-            if (std::sqrt(std::pow(x1.x, 2)+std::pow(x1.y, 2)) > std::sqrt(std::pow(x2.x, 2)+std::pow(x2.y, 2))){
+            if (std::sqrt(x1.x*x1.x+x1.y*x1.y) > std::sqrt(x2.x*x2.x+x2.y*x2.y)){
                 return false;
             }
             else return x1.y < x2.y;
@@ -271,6 +271,9 @@ private:
     std::unordered_map<PublicationID, PublicationData> publications_data;
     std::map<Coord, AffiliationID, DistanceComparator> affiliations_with_distances;
     std::map<Name, AffiliationID> affiliations_with_names;
+    std::unordered_map<AffiliationID, std::unordered_map<Year, PublicationID>> affiliations_with_years;
+    std::vector<AffiliationID> sorted_affiliations_alphabetically;
+    std::vector<AffiliationID> sorted_affiliations_distance;
 };
 
 #endif // DATASTRUCTURES_HH

@@ -49,6 +49,9 @@ void Datastructures::clear_all()
     publications_data.clear();
     affiliations_with_distances.clear();
     affiliations_with_names.clear();
+    sorted_affiliations_alphabetically.clear();
+    sorted_affiliations_distance.clear();
+    affiliations_with_years.clear();
 }
 
 std::vector<AffiliationID> Datastructures::get_all_affiliations()
@@ -96,25 +99,26 @@ Coord Datastructures::get_affiliation_coord(AffiliationID id)
 
 std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 {
-    std::vector<AffiliationID> sorted_affiliations;
-    for (const auto& pair : affiliations_with_names)
-    {
-        sorted_affiliations.push_back(pair.second);
-    }
+    sorted_affiliations_alphabetically.reserve(affiliations_with_names.size());
 
-    return sorted_affiliations;
+    std::transform(affiliations_with_names.begin(), affiliations_with_names.end(),
+                     std::back_inserter(sorted_affiliations_alphabetically),
+                    [](const auto& pair) { return pair.second; });
+
+    return sorted_affiliations_alphabetically;
 }
 
 
 std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing()
 {
-    std::vector<AffiliationID> sorted_affiliations;
-    for (const auto& pair : affiliations_with_distances)
-    {
-        sorted_affiliations.push_back(pair.second);
-    }
 
-    return sorted_affiliations;
+        sorted_affiliations_distance.reserve(affiliations_with_distances.size());
+
+        std::transform(affiliations_with_distances.begin(), affiliations_with_distances.end(),
+                       std::back_inserter(sorted_affiliations_distance),
+                       [](const auto& pair) { return pair.second; });
+
+        return sorted_affiliations_distance;
 }
 
 AffiliationID Datastructures::find_affiliation_with_coord(Coord xy)
@@ -147,7 +151,11 @@ bool Datastructures::add_publication(PublicationID id, const Name &name, Year ye
         new_pub.name = name;  
         new_pub.publication_year = year; 
         new_pub.affiliations = affiliations;
-        publications_data[id] = new_pub; 
+        publications_data[id] = new_pub;
+        for (const auto& aff_id : affiliations)
+        {
+            affiliations_with_years[aff_id].insert({year, id});
+        }
         return true;
     }
     return false;
@@ -210,6 +218,7 @@ bool Datastructures::add_affiliation_to_publication(AffiliationID affiliationid,
     if ((affiliation_data.find(affiliationid) != affiliation_data.end()) && 
     (publications_data.find(publicationid) != publications_data.end())) {
         publications_data[publicationid].affiliations.push_back(affiliationid);
+        affiliations_with_years[affiliationid].insert({publications_data[publicationid].publication_year, publicationid});
         return true;    
     } else {
         return false;
@@ -246,23 +255,22 @@ std::vector<std::pair<Year, PublicationID>> Datastructures::get_publications_aft
         return publications;
     }
     
-    for (const auto& pair : publications_data)
+    for (const auto& pair : affiliations_with_years[affiliationid])
     {
-        if (std::find(pair.second.affiliations.begin(), pair.second.affiliations.end(), affiliationid)!= pair.second.affiliations.end()){
-            if (pair.second.publication_year >= year){
-                publications.push_back({pair.second.publication_year, pair.first});
-            }
+        if (pair.first >= year){
+           publications.push_back(pair);
         }
     }
+
     auto compareYear = [](const std::pair<Year, PublicationID>& a, const std::pair<Year, PublicationID>& b) {
-        if (a.first < b.first) {
-            return true;
-        }
-        if (a.first > b.first) {
-            return false;
-        }
-        return a.second < b.second;
-    };
+            if (a.first < b.first) {
+                return true;
+            }
+            if (a.first > b.first) {
+                return false;
+            }
+            return a.second < b.second;
+        };
 
     std::sort(publications.begin(), publications.end(), compareYear);
     return publications;

@@ -173,6 +173,11 @@ std::vector<PublicationID> Datastructures::all_publications()
 
 Name Datastructures::get_publication_name(PublicationID id)
 {
+    auto it = publications_data.find(id);
+    if (it == publications_data.end()) {
+        return NO_NAME;
+    }
+    
     return publications_data[id].name;
 }
 
@@ -355,9 +360,7 @@ bool Datastructures::remove_publication(PublicationID publicationid)
     if (it == publications_data.end() || publications_data.empty()) {
         return false;
     }
-
     publications_data.erase(it);
-
     for (auto& pair : affiliations_with_years) {
         for (auto& publications_map : pair.second) {
             if (publications_map.second == publicationid){
@@ -365,7 +368,6 @@ bool Datastructures::remove_publication(PublicationID publicationid)
             }
         }
     }
-
     for (auto& pair : publications_data) {
         if (pair.second.referenced_by == publicationid){
             pair.second.referenced_by = NO_PUBLICATION;
@@ -375,7 +377,6 @@ bool Datastructures::remove_publication(PublicationID publicationid)
             pair.second.referencing.erase(*it);
         }
     }
-
     return true;
 }
 

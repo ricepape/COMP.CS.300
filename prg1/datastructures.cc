@@ -306,11 +306,22 @@ std::vector<AffiliationID> Datastructures::get_affiliations_closest_to(Coord /*x
     throw NotImplemented("get_affiliations_closest_to()");
 }
 
-bool Datastructures::remove_affiliation(AffiliationID /*id*/)
+bool Datastructures::remove_affiliation(AffiliationID id)
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("remove_affiliation()");
+   affiliation_data.erase(id);
+   affiliations_with_years.erase(id);
+   for (const auto& pair : publications_data)
+    {
+        for (const auto& pair2 : pair.second.affiliations)
+        {
+            if (pair2 == id){
+                publications.push_back(pair);
+            }
+        }
+    }
 }
+
+
 
 PublicationID Datastructures::get_closest_common_parent(PublicationID /*id1*/, PublicationID /*id2*/)
 {

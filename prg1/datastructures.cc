@@ -228,6 +228,10 @@ bool Datastructures::add_affiliation_to_publication(AffiliationID affiliationid,
 std::vector<PublicationID> Datastructures::get_publications(AffiliationID id)
 {
     all_publications_vec.clear();
+    auto findit = affiliation_data.find(id);
+    if (findit == affiliation_data.end()) {
+        return all_publications_vec;
+    }
     for (const auto& pair : publications_data)
     {
         if (std::find(pair.second.affiliations.begin(), pair.second.affiliations.end(), id) != pair.second.affiliations.end())

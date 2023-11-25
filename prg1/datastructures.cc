@@ -238,13 +238,14 @@ PublicationID Datastructures::get_parent(PublicationID id)
     return NO_PUBLICATION;
 }
 
-std::vector<std::pair<Year, PublicationID> > Datastructures::get_publications_after(AffiliationID affiliationid, Year year)
+std::vector<std::pair<Year, PublicationID>> Datastructures::get_publications_after(AffiliationID affiliationid, Year year)
 {
     std::vector<std::pair<Year, PublicationID>> publications;
     auto it = affiliation_data.find(affiliationid);
     if (it == affiliation_data.end()) {
         return publications;
     }
+    
     for (const auto& pair : publications_data)
     {
         if (std::find(pair.second.affiliations.begin(), pair.second.affiliations.end(), affiliationid)!= pair.second.affiliations.end()){

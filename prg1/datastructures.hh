@@ -102,98 +102,118 @@ public:
     Datastructures();
     ~Datastructures();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(1)
+    // Short rationale for estimate: The function returns the size of the container
+    // only, not going through the elements
     unsigned int get_affiliation_count();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: The function goes through each element
+    // in the container to clear
     void clear_all();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: The function goes through each element
+    // in the container to retrieve the element and add element to a vector
     std::vector<AffiliationID> get_all_affiliations();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(1)
+    // Short rationale for estimate: The function goes through the map to 
+    // check and inserting into maps
     bool add_affiliation(AffiliationID id, Name const& name, Coord xy);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Goes through the elements, in worst case all elemets
+    // in the map to check and return the name.
     Name get_affiliation_name(AffiliationID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Goes through the elements, in worst case all elemets
+    // in the map to check and return the coordinates.
     Coord get_affiliation_coord(AffiliationID id);
 
 
     // We recommend you implement the operations below only after implementing the ones above
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Go through all the elements and insert them 
+    // into a vector.
     std::vector<AffiliationID> get_affiliations_alphabetically();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Go through all the elements and insert them 
+    // into a vector with distance increasing.
     std::vector<AffiliationID> get_affiliations_distance_increasing();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Go through all the elements to check if the 
+    // coordinations exists
     AffiliationID find_affiliation_with_coord(Coord xy);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Go through all the elements in worst case 
+    // to check if the affiliation exists
     bool change_affiliation_coord(AffiliationID id, Coord newcoord);
 
 
     // We recommend you implement the operations below only after implementing the ones above
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Go through all the elements to check if the publication exists 
+    // then add it to the container.
     bool add_publication(PublicationID id, Name const& name, Year year, const std::vector<AffiliationID> & affiliations);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Go through all the elements to get and push them 
+    // into the container.
     std::vector<PublicationID> all_publications();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(1)
+    // Short rationale for estimate: Return a name value with a given key, derived instantly
     Name get_publication_name(PublicationID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(1)
+    // Short rationale for estimate: Return the year value with a given key, derived instantly
     Year get_publication_year(PublicationID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(1)
+    // Short rationale for estimate: Return the vector of affiliationid value with a given key, derived instantly
     std::vector<AffiliationID> get_affiliations(PublicationID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Go through the elements in publications_data to check
+    // if the ids exist, then add instantly the new value.
     bool add_reference(PublicationID id, PublicationID parentid);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Go through the elements in publications_data to check
+    // if the id exists, then add instantly the new value.
     std::vector<PublicationID> get_direct_references(PublicationID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Use the find function to go through all elements
+    // to check its existence.
     bool add_affiliation_to_publication(AffiliationID affiliationid, PublicationID publicationid);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n^2)
+    // Short rationale for estimate: Go through each element in the publication data,
+    // the for each publication, go through all elements in the related affiliations
     std::vector<PublicationID> get_publications(AffiliationID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Use the find function to go through all elements
+    // to check the publication id's existence.
     PublicationID get_parent(PublicationID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n^2)
+    // Short rationale for estimate: Go through each element in the publication data,
+    // the for each publication, go through all elements in the related affiliations.
+    // All the other has time complexity small enough compared to this
     std::vector<std::pair<Year, PublicationID>> get_publications_after(AffiliationID affiliationid, Year year);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: Go through each element to check the existence
+    // of the publication id and go through the chain of parent reference.
     std::vector<PublicationID> get_referenced_by_chain(PublicationID id);
 
 

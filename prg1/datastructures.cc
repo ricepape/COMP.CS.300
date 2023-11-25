@@ -49,6 +49,8 @@ void Datastructures::clear_all()
     publications_data.clear();
     affiliations_with_distances.clear();
     affiliations_with_names.clear();
+    affiliations_with_years.clear();
+    sorted_affiliations.clear();
 }
 
 std::vector<AffiliationID> Datastructures::get_all_affiliations()
@@ -66,9 +68,9 @@ bool Datastructures::add_affiliation(AffiliationID id, const Name &name, Coord x
     auto findit = affiliation_data.find(id);
     if (findit == affiliation_data.end()) {
         AffiliationData new_aff;
-        new_aff.name = name;  
+        new_aff.name = name;
         new_aff.coordinates = xy;
-        affiliation_data[id] = new_aff; 
+        affiliation_data[id] = new_aff;
         affiliations_with_distances[xy] = id;
         affiliations_with_names[name] = id;
         return true;
@@ -96,7 +98,7 @@ Coord Datastructures::get_affiliation_coord(AffiliationID id)
 
 std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 {
-    std::vector<AffiliationID> sorted_affiliations;
+    sorted_affiliations.clear();
     for (const auto& pair : affiliations_with_names)
     {
         sorted_affiliations.push_back(pair.second);
@@ -108,7 +110,7 @@ std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 
 std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing()
 {
-    std::vector<AffiliationID> sorted_affiliations;
+    sorted_affiliations.clear();
     for (const auto& pair : affiliations_with_distances)
     {
         sorted_affiliations.push_back(pair.second);
@@ -116,6 +118,7 @@ std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing(
 
     return sorted_affiliations;
 }
+
 
 AffiliationID Datastructures::find_affiliation_with_coord(Coord xy)
 {
@@ -129,7 +132,7 @@ AffiliationID Datastructures::find_affiliation_with_coord(Coord xy)
 bool Datastructures::change_affiliation_coord(AffiliationID id, Coord newcoord)
 {
      if (affiliation_data.find(id) != affiliation_data.end()) {
-        old = affiliation_data[id].coordinates;
+        Coord old = affiliation_data[id].coordinates;
         affiliation_data[id].coordinates = newcoord;
         affiliations_with_distances.erase(old);
         affiliations_with_distances[newcoord] = id;
@@ -144,10 +147,14 @@ bool Datastructures::add_publication(PublicationID id, const Name &name, Year ye
     auto findit = publications_data.find(id);
     if (findit == publications_data.end()) {
         PublicationData new_pub;
-        new_pub.name = name;  
-        new_pub.publication_year = year; 
+        new_pub.name = name;
+        new_pub.publication_year = year;
         new_pub.affiliations = affiliations;
-        publications_data[id] = new_pub; 
+        publications_data[id] = new_pub;
+        for (const auto& aff_id : affiliations)
+        {
+            affiliations_with_years[aff_id].insert({year, id});
+        }
         return true;
     }
     return false;
@@ -189,7 +196,7 @@ bool Datastructures::add_reference(PublicationID id, PublicationID parentid)
     publications_data[parentid].referencing.insert(id);
     publications_data[id].referenced_by = parentid;
     return true;
-    
+
 }
 
 std::vector<PublicationID> Datastructures::get_direct_references(PublicationID id)
@@ -207,10 +214,11 @@ std::vector<PublicationID> Datastructures::get_direct_references(PublicationID i
 
 bool Datastructures::add_affiliation_to_publication(AffiliationID affiliationid, PublicationID publicationid)
 {
-    if ((affiliation_data.find(affiliationid) != affiliation_data.end()) && 
+    if ((affiliation_data.find(affiliationid) != affiliation_data.end()) &&
     (publications_data.find(publicationid) != publications_data.end())) {
         publications_data[publicationid].affiliations.push_back(affiliationid);
-        return true;    
+        affiliations_with_years[affiliationid].insert({publications_data[publicationid].publication_year, publicationid});
+        return true;
     } else {
         return false;
     }
@@ -238,30 +246,30 @@ PublicationID Datastructures::get_parent(PublicationID id)
     return NO_PUBLICATION;
 }
 
-std::vector<std::pair<Year, PublicationID> > Datastructures::get_publications_after(AffiliationID affiliationid, Year year)
+std::vector<std::pair<Year, PublicationID>> Datastructures::get_publications_after(AffiliationID affiliationid, Year year)
 {
     std::vector<std::pair<Year, PublicationID>> publications;
     auto it = affiliation_data.find(affiliationid);
     if (it == affiliation_data.end()) {
         return publications;
     }
-    for (const auto& pair : publications_data)
+
+    for (const auto& pair : affiliations_with_years[affiliationid])
     {
-        if (std::find(pair.second.affiliations.begin(), pair.second.affiliations.end(), affiliationid)!= pair.second.affiliations.end()){
-            if (pair.second.publication_year >= year){
-                publications.push_back({pair.second.publication_year, pair.first});
-            }
+        if (pair.first >= year){
+           publications.push_back(pair);
         }
     }
+
     auto compareYear = [](const std::pair<Year, PublicationID>& a, const std::pair<Year, PublicationID>& b) {
-        if (a.first < b.first) {
-            return true;
-        }
-        if (a.first > b.first) {
-            return false;
-        }
-        return a.second < b.second;
-    };
+            if (a.first < b.first) {
+                return true;
+            }
+            if (a.first > b.first) {
+                return false;
+            }
+            return a.second < b.second;
+        };
 
     std::sort(publications.begin(), publications.end(), compareYear);
     return publications;
@@ -314,5 +322,4 @@ bool Datastructures::remove_publication(PublicationID /*publicationid*/)
     // Replace the line below with your implementation
     throw NotImplemented("remove_publication()");
 }
-
 

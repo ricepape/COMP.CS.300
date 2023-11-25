@@ -373,10 +373,23 @@ bool Datastructures::remove_affiliation(AffiliationID id)
 
 
 
-PublicationID Datastructures::get_closest_common_parent(PublicationID /*id1*/, PublicationID /*id2*/)
+PublicationID Datastructures::get_closest_common_parent(PublicationID id1, PublicationID id2)
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("get_closest_common_parent()");
+    if (publications_data.find(id1) == publications_data.end() ||
+            publications_data.find(id2) == publications_data.end()) {
+            return NO_PUBLICATION;
+        }
+
+        std::unordered_set<PublicationID> referencing1 = publications_data[id1].referencing;
+
+        for (PublicationID parent : referencing1) {
+            if (publications_data[id2].referencing.find(parent) !=
+                publications_data[id2].referencing.end()) {
+                return parent;
+            }
+        }
+
+        return NO_PUBLICATION;
 }
 
 bool Datastructures::remove_publication(PublicationID publicationid)

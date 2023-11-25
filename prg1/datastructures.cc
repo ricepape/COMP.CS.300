@@ -395,31 +395,27 @@ PublicationID Datastructures::get_closest_common_parent(PublicationID id1, Publi
 
 bool Datastructures::remove_publication(PublicationID publicationid)
 {
-    auto publicationIt = publications_data.find(publicationid);
-
-    if (publicationIt == publications_data.end()) {
-        return false;
-    } 
-
-    for (const auto& referencingID : publicationIt->second.referencing) {
-        auto referencingIt = publications_data.find(referencingID);
-        if (referencingIt != publications_data.end()) {
-            referencingIt->second.referenced_by = NO_PUBLICATION;
-        }
-    }
-
-    publications_data.erase(publicationIt);
-
-    for (const auto& affiliationID : affiliationsToRemove) {
-        auto affiliationsIt = affiliations_with_years.find(affiliationID);
-        if (affiliationsIt != affiliations_with_years.end()) {
-            affiliationsIt->second.erase(publicationIt->second.publication_year);
-            if (affiliationsIt->second.empty()) {
-                affiliations_with_years.erase(affiliationsIt);
-            }
-        }
-    }
-
-    return true;
+    auto it = publications_data.find(publicationid);
+       if (it == publications_data.end() || publications_data.empty()) {
+           return false;
+       }
+       publications_data.erase(publicationid);
+       for (auto& pair : affiliations_with_years) {
+           for (auto& publications_map : pair.second) {
+               if (publications_map.second == publicationid){
+                   affiliations_with_years[pair.first].erase(publications_map.first);
+               }
+           }
+       }
+       for (auto& pair : publications_data) {
+           if (pair.second.referenced_by == publicationid){
+               pair.second.referenced_by = NO_PUBLICATION;
+           }
+           auto it = pair.second.referencing.find(publicationid);
+           if (it != pair.second.referencing.end()){
+               pair.second.referencing.erase(publicationid);
+           }
+       }
+       return true;
 }
 

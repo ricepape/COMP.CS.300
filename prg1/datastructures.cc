@@ -380,12 +380,13 @@ PublicationID Datastructures::get_closest_common_parent(PublicationID id1, Publi
             return NO_PUBLICATION;
         }
 
-        std::unordered_set<PublicationID> referencing1 = publications_data[id1].referencing;
-
-        for (PublicationID parent : referencing1) {
-            if (publications_data[id2].referencing.find(parent) !=
-                publications_data[id2].referencing.end()) {
+        std::vector<PublicationID> parent_id1 = get_referenced_by_chain(id1);
+        std::vector<PublicationID> parent_id2 = get_referenced_by_chain(id2);
+        for (PublicationID parent : parent_id1) {
+            for (PublicationID parent2 : parent_id2) {
+            if (parent == parent2) {
                 return parent;
+                }
             }
         }
 
@@ -398,9 +399,7 @@ bool Datastructures::remove_publication(PublicationID publicationid)
 
     if (publicationIt == publications_data.end()) {
         return false;
-    }
-
-    const auto& affiliationsToRemove = publicationIt->second.affiliations;
+    } 
 
     for (const auto& referencingID : publicationIt->second.referencing) {
         auto referencingIt = publications_data.find(referencingID);

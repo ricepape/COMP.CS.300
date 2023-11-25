@@ -176,7 +176,7 @@ public:
     // Short rationale for estimate: Return the year value with a given key, derived instantly
     Year get_publication_year(PublicationID id);
 
-    // Estimate of performance: O(1)
+    // Estimate of performance: O(log n)
     // Short rationale for estimate: Return the vector of affiliationid value with a given key, derived instantly
     std::vector<AffiliationID> get_affiliations(PublicationID id);
 
@@ -195,7 +195,7 @@ public:
     // to check its existence.
     bool add_affiliation_to_publication(AffiliationID affiliationid, PublicationID publicationid);
 
-    // Estimate of performance: O(n^2)
+    // Estimate of performance: O(n log n)
     // Short rationale for estimate: Go through each element in the publication data,
     // the for each publication, go through all elements in the related affiliations
     std::vector<PublicationID> get_publications(AffiliationID id);

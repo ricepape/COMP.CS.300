@@ -308,42 +308,33 @@ std::vector<AffiliationID> Datastructures::get_affiliations_closest_to(Coord /*x
 
 bool Datastructures::remove_affiliation(AffiliationID id)
 {
-   auto findit = affiliation_data.find(id);
-   if (findit == affiliation_data.end()) {
+    auto findit = affiliation_data.find(id);
+    if (findit == affiliation_data.end()) {
         return false;
-   }
-   auto findit2 = affiliations_with_years.find(id);
-   if (findit2 != affiliations_with_years.end()) {
-        affiliations_with_years.erase(id);
-   }
-   affiliation_data.erase(id);
-   for (auto& pair : publications_data)
-    {
-       auto position = std::find(pair.second.affiliations.begin(), pair.second.affiliations.end(), id);
-       if (position != pair.second.affiliations.end()){
-           pair.second.affiliations.erase(position);
-       }
     }
-   for (auto& pair : affiliations_with_names)
-    {
-       if (pair.second == id){
-           affiliations_with_names.erase(pair.first);
-       }
-    }
-   for (auto& pair : affiliations_with_distances)
-    {
-       if (pair.second == id){
-           affiliations_with_distances.erase(pair.first);
-       }
-    }
-   for (auto& pair : affiliations_with_distances)
-    {
-       if (pair.second == id){
-           affiliations_with_distances.erase(pair.first);
-       }
-    }
-   return true;
 
+    affiliation_data.erase(findit);
+
+    affiliations_with_years.erase(id);
+
+    for (auto& pair : publications_data) {
+        auto& affiliations = pair.second.affiliations;
+        affiliations.erase(std::remove(affiliations.begin(), affiliations.end(), id), affiliations.end());
+    }
+
+    auto it = std::find_if(affiliations_with_names.begin(), affiliations_with_names.end(),
+                           [id](const auto& pair) { return pair.second == id; });
+    if (it != affiliations_with_names.end()) {
+        affiliations_with_names.erase(it);
+    }
+
+    auto distance_it = std::find_if(affiliations_with_distances.begin(), affiliations_with_distances.end(),
+                                    [id](const auto& pair) { return pair.second == id; });
+    if (distance_it != affiliations_with_distances.end()) {
+        affiliations_with_distances.erase(distance_it);
+    }
+
+    return true;
 }
 
 

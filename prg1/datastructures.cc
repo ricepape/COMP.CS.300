@@ -352,7 +352,7 @@ PublicationID Datastructures::get_closest_common_parent(PublicationID /*id1*/, P
 bool Datastructures::remove_publication(PublicationID publicationid)
 {
     auto it = publications_data.find(publicationid);
-    if (it == publications_data.end() || publication_data.empty()) {
+    if (it == publications_data.end() || publications_data.empty()) {
         return false;
     }
 

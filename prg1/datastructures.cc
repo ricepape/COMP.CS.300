@@ -381,33 +381,33 @@ PublicationID Datastructures::get_closest_common_parent(PublicationID /*id1*/, P
 
 bool Datastructures::remove_publication(PublicationID publicationid)
 {
-    auto it = publications_data.find(publicationid);
-    if (it == publications_data.end()) {
+    auto publicationIt = publications_data.find(publicationid);
+
+    if (publicationIt == publications_data.end()) {
         return false;
     }
 
-    publications_data.erase(it);
+    const auto& affiliationsToRemove = publicationIt->second.affiliations;
 
-    for (auto& pair : affiliations_with_years) {
-        for (auto& publications_map : pair.second) {
-            if (publications_map.second == publicationid){
-                affiliations_with_years[pair.first].erase(publications_map.first);
+    for (const auto& referencingID : publicationIt->second.referencing) {
+        auto referencingIt = publications_data.find(referencingID);
+        if (referencingIt != publications_data.end()) {
+            referencingIt->second.referenced_by = NO_PUBLICATION;
+        }
+    }
+
+    publications_data.erase(publicationIt);
+
+    for (const auto& affiliationID : affiliationsToRemove) {
+        auto affiliationsIt = affiliations_with_years.find(affiliationID);
+        if (affiliationsIt != affiliations_with_years.end()) {
+            affiliationsIt->second.erase(publicationIt->second.publication_year);
+            if (affiliationsIt->second.empty()) {
+                affiliations_with_years.erase(affiliationsIt);
             }
         }
     }
 
-    for (auto& pair : publications_data) {
-        if (pair.second.referenced_by == publicationid){
-            pair.second.referenced_by = NO_PUBLICATION;
-        }
-    }
-    
-    for (auto& pair : publications_data) {
-        auto it2 = pair.second.referencing.find(publicationid);
-        if (it2 != pair.second.referencing.end()){
-            pair.second.referencing.erase(it2);
-        }
-    }
     return true;
 }
 

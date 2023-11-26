@@ -53,6 +53,7 @@ void Datastructures::clear_all()
     sorted_affiliations.clear();
     all_affiliations.clear();
     all_publications_vec.clear();
+    sorted_affiliations_alp.clear();
 }
 
 std::vector<AffiliationID> Datastructures::get_all_affiliations()
@@ -75,6 +76,8 @@ bool Datastructures::add_affiliation(AffiliationID id, const Name &name, Coord x
         affiliation_data[id] = new_aff;
         affiliations_with_distances[xy] = id;
         affiliations_with_names[name] = id;
+        aff_change = true;
+        aff_change_coord = true;
         return true;
     }
     return false;
@@ -100,23 +103,31 @@ Coord Datastructures::get_affiliation_coord(AffiliationID id)
 
 std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 {
-    sorted_affiliations.clear();
-    for (auto& pair : affiliations_with_names)
-    {
-        sorted_affiliations.push_back(pair.second);
+    if (aff_change){
+        sorted_affiliations_alp.clear();
+        for (auto& pair : affiliations_with_names)
+        {
+            sorted_affiliations.push_back(pair.second);
+        }
+        aff_change = false;
+        return sorted_affiliations_alp;
     }
-    return sorted_affiliations;
+    return sorted_affiliations_alp;
 }
 
 
 std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing()
 {
-    sorted_affiliations.clear();
-    for (auto& pair : affiliations_with_distances)
-    {
-        sorted_affiliations.push_back(pair.second);
+    if (dis_change || aff_change_coord){
+        sorted_affiliations.clear();
+        for (auto& pair : affiliations_with_distances)
+        {
+            sorted_affiliations.push_back(pair.second);
+        }
+        dis_change = false;
+        aff_change_coord = false;
+        return sorted_affiliations;
     }
-
     return sorted_affiliations;
 }
 
@@ -137,6 +148,7 @@ bool Datastructures::change_affiliation_coord(AffiliationID id, Coord newcoord)
         affiliation_data[id].coordinates = newcoord;
         affiliations_with_distances.erase(old);
         affiliations_with_distances[newcoord] = id;
+        dis_change = true;
         return true;
     } else {
         return false;
@@ -152,6 +164,7 @@ bool Datastructures::add_publication(PublicationID id, const Name &name, Year ye
         new_pub.publication_year = year;
         new_pub.affiliations = affiliations;
         publications_data[id] = new_pub;
+        aff_change = true;
         for (const auto& aff_id : affiliations)
         {
             affiliations_with_years[aff_id].insert({year, id});

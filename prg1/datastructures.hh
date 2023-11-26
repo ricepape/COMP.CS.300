@@ -277,6 +277,10 @@ private:
     std::vector<AffiliationID> sorted_affiliations;
     std::vector<AffiliationID> all_affiliations;
     std::vector<PublicationID> all_publications_vec;
+    bool aff_change = false;
+    bool aff_change_coord = false;
+    bool dis_change = false;
+    std::vector<AffiliationID> sorted_affiliations_alp;
 };
 
 #endif // DATASTRUCTURES_HH

@@ -196,6 +196,10 @@ Name Datastructures::get_publication_name(PublicationID id)
 
 Year Datastructures::get_publication_year(PublicationID id)
 {
+    auto it = publications_data.find(id);
+    if (it == publications_data.end()) {
+        return NO_YEAR;
+    }
     return publications_data[id].publication_year;
 }
 

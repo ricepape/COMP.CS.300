@@ -399,7 +399,6 @@ bool Datastructures::remove_publication(PublicationID publicationid)
        if (it == publications_data.end() || publications_data.empty()) {
            return false;
        }
-       publications_data.erase(publicationid);
        for (auto& pair : affiliations_with_years) {
            for (auto& publications_map : pair.second) {
                if (publications_map.second == publicationid){
@@ -411,11 +410,12 @@ bool Datastructures::remove_publication(PublicationID publicationid)
            if (pair.second.referenced_by == publicationid){
                pair.second.referenced_by = NO_PUBLICATION;
            }
-           auto it = pair.second.referencing.find(publicationid);
-           if (it != pair.second.referencing.end()){
-               pair.second.referencing.erase(publicationid);
+           auto it2 = pair.second.referencing.find(publicationid);
+           if (it2 != pair.second.referencing.end()){
+               pair.second.referencing.erase(it2);
            }
        }
+       publications_data.erase(it);
        return true;
 }
 

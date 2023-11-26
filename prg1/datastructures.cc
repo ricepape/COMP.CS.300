@@ -103,11 +103,11 @@ Coord Datastructures::get_affiliation_coord(AffiliationID id)
 
 std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 {
-    if (aff_change){
+    if (aff_change == true){
         sorted_affiliations_alp.clear();
         for (auto& pair : affiliations_with_names)
         {
-            sorted_affiliations.push_back(pair.second);
+            sorted_affiliations_alp.push_back(pair.second);
         }
         aff_change = false;
         return sorted_affiliations_alp;
@@ -118,7 +118,7 @@ std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 
 std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing()
 {
-    if (dis_change || aff_change_coord){
+    if (dis_change == true|| aff_change_coord == true){
         sorted_affiliations.clear();
         for (auto& pair : affiliations_with_distances)
         {

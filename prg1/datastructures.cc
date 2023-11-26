@@ -101,7 +101,7 @@ Coord Datastructures::get_affiliation_coord(AffiliationID id)
 std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 {
     sorted_affiliations.clear();
-    for (const auto& pair : affiliations_with_names)
+    for (auto& pair : affiliations_with_names)
     {
         sorted_affiliations.push_back(pair.second);
     }
@@ -112,7 +112,7 @@ std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing()
 {
     sorted_affiliations.clear();
-    for (const auto& pair : affiliations_with_distances)
+    for (auto& pair : affiliations_with_distances)
     {
         sorted_affiliations.push_back(pair.second);
     }
@@ -395,34 +395,31 @@ PublicationID Datastructures::get_closest_common_parent(PublicationID id1, Publi
 bool Datastructures::remove_publication(PublicationID publicationid)
 {
     auto it = publications_data.find(publicationid);
-    if (it == publications_data.end()) {
-        return false;
-    }
+        if (it == publications_data.end()) {
+            return false;
+        }
 
-    for (auto& pair : affiliations_with_years) {
-        for (auto it2 = pair.second.begin(); it2 != pair.second.end();) {
-            if (it2->second == publicationid) {
-                pair.second.erase(it2);
-            } else {
-                ++it;
+        for (auto& pair : affiliations_with_years) {
+            for (auto it = pair.second.begin(); it != pair.second.end();) {
+                if (it->second == publicationid) {
+                    it = pair.second.erase(it);
+                } else {
+                    ++it;
+                }
             }
         }
-    }
 
-    for (auto& pair : publications_data) {
-        if (pair.second.referenced_by == publicationid) {
-            pair.second.referenced_by = NO_PUBLICATION;
+        for (auto& pair : publications_data) {
+            if (pair.second.referenced_by == publicationid) {
+                pair.second.referenced_by = NO_PUBLICATION;
+            }
+
+            pair.second.referencing.erase(publicationid);
         }
 
-        for (auto it3 = pair.second.referencing.begin(); it3 != pair.second.referencing.end();) {
-        if (*it3 == publicationid){
-            pair.second.referencing.erase(it3);
-        }
-        }
-    }
+        publications_data.erase(publicationid);
 
-    publications_data.erase(it);
+        return true;
 
-    return true;
 }
 

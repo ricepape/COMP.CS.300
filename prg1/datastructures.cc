@@ -396,26 +396,29 @@ PublicationID Datastructures::get_closest_common_parent(PublicationID id1, Publi
 bool Datastructures::remove_publication(PublicationID publicationid)
 {
     auto it = publications_data.find(publicationid);
-       if (it == publications_data.end() || publications_data.empty()) {
-           return false;
-       }
-       for (auto& pair : affiliations_with_years) {
-           for (auto& publications_map : pair.second) {
-               if (publications_map.second == publicationid){
-                   affiliations_with_years[pair.first].erase(publications_map.first);
-               }
-           }
-       }
-       for (auto& pair : publications_data) {
-           if (pair.second.referenced_by == publicationid){
-               pair.second.referenced_by = NO_PUBLICATION;
-           }
-           auto it2 = pair.second.referencing.find(publicationid);
-           if (it2 != pair.second.referencing.end()){
-               pair.second.referencing.erase(publicationid);
-           }
-       }
-       publications_data.erase(it);
-       return true;
+    if (it == publications_data.end()) {
+        return false;
+
+    for (auto& pair : affiliations_with_years) {
+        for (auto it = pair.second.begin(); it != pair.second.end();) {
+            if (it->second == publicationid) {
+                it = pair.second.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    for (auto& pair : publications_data) {
+        if (pair.second.referenced_by == publicationid) {
+            pair.second.referenced_by = NO_PUBLICATION;
+        }
+
+        pair.second.referencing.erase(publicationid);
+    }
+
+    publications_data.erase(it);
+
+    return true;
 }
 

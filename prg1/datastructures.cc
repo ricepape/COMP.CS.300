@@ -398,6 +398,7 @@ bool Datastructures::remove_publication(PublicationID publicationid)
     auto it = publications_data.find(publicationid);
     if (it == publications_data.end()) {
         return false;
+    }
 
     for (auto& pair : affiliations_with_years) {
         for (auto it = pair.second.begin(); it != pair.second.end();) {

@@ -58,6 +58,7 @@ void Datastructures::clear_all()
 std::vector<AffiliationID> Datastructures::get_all_affiliations()
 {
     all_affiliations.clear();
+    all_affiliations.resize(affiliation_data.size());
     for (const auto& pair : affiliation_data)
     {
         all_affiliations.push_back(pair.first);
@@ -101,6 +102,7 @@ Coord Datastructures::get_affiliation_coord(AffiliationID id)
 std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 {
     sorted_affiliations.clear();
+    sorted_affiliations.resize(affiliations_with_names.size());
     for (const auto& pair : affiliations_with_names)
     {
         sorted_affiliations.push_back(pair.second);
@@ -112,6 +114,7 @@ std::vector<AffiliationID> Datastructures::get_affiliations_alphabetically()
 std::vector<AffiliationID> Datastructures::get_affiliations_distance_increasing()
 {
     sorted_affiliations.clear();
+    sorted_affiliations.resize(affiliations_with_distances.size());
     for (const auto& pair : affiliations_with_distances)
     {
         sorted_affiliations.push_back(pair.second);
@@ -164,7 +167,6 @@ bool Datastructures::add_publication(PublicationID id, const Name &name, Year ye
 std::vector<PublicationID> Datastructures::all_publications()
 {
     all_publications_vec.clear();
-
     for (const auto& pair : publications_data)
     {
         all_publications_vec.push_back(pair.first);

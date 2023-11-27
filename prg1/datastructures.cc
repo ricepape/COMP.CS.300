@@ -306,24 +306,25 @@ std::vector<PublicationID> Datastructures::get_referenced_by_chain(PublicationID
 {
     all_publications_vec.clear();
 
-        auto it = publications_data.find(id);
-        if (it == publications_data.end()) {
-            return {NO_PUBLICATION};
-        }
+    auto it = publications_data.find(id);
+    if (it == publications_data.end()) {
+        return {NO_PUBLICATION};
+    }
 
-        PublicationID publication = it->second.referenced_by;
-        while (publication != NO_PUBLICATION) {
-            all_publications_vec.push_back(publication);
-            publication = publications_data[publication].referenced_by;
-        }
+    PublicationID publication = it->second.referenced_by;
+    while (publication != NO_PUBLICATION) {
+        all_publications_vec.push_back(publication);
+        publication = publications_data[publication].referenced_by;
+    }
 
-        return all_publications_vec;
+    return all_publications_vec;
 }
 
-std::vector<PublicationID> Datastructures::get_all_references(PublicationID /*id*/)
+std::vector<PublicationID> Datastructures::get_all_references(PublicationID id)
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("get_all_references()");
+    std::vector<PublicationID> chain = get_referenced_by_chain(id);
+    return chain;
+
 }
 
 std::vector<AffiliationID> Datastructures::get_affiliations_closest_to(Coord xy)

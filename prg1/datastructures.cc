@@ -337,7 +337,7 @@ std::vector<PublicationID> Datastructures::get_all_references(PublicationID id)
     std::sort(all_references.begin(), all_references.end(), [](PublicationID id1, PublicationID id2) {
         return id1 < id2;
     });
-
+    return all_references;
 }
 
 std::vector<AffiliationID> Datastructures::get_affiliations_closest_to(Coord xy)

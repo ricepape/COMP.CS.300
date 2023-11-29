@@ -322,8 +322,20 @@ std::vector<PublicationID> Datastructures::get_referenced_by_chain(PublicationID
 
 std::vector<PublicationID> Datastructures::get_all_references(PublicationID id)
 {
-    std::vector<PublicationID> chain = get_referenced_by_chain(id);
-    return chain;
+    if (publications_data.find(id) == publications_data.end()) {
+        return {NO_PUBLICATION};
+    }
+
+    std::vector<PublicationID> direct_references = get_direct_references(id);
+    for (auto direct_reference : direct_references) {
+        all_references.push_back(direct_reference);
+        std::vector<PublicationID> indirect_references = get_all_references(direct_reference);
+        all_references.insert(all_references.end(), indirect_references.begin(), indirect_references.end());
+    }
+
+    std::sort(all_references.begin(), all_references.end(), [](PublicationID id1, PublicationID id2) {
+        return id1 < id2;
+    });
 
 }
 

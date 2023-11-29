@@ -326,6 +326,7 @@ std::vector<PublicationID> Datastructures::get_all_references(PublicationID id)
         return {NO_PUBLICATION};
     }
 
+    std::vector<PublicationID> all_references;
     std::vector<PublicationID> direct_references = get_direct_references(id);
     for (auto direct_reference : direct_references) {
         all_references.push_back(direct_reference);

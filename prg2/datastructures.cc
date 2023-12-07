@@ -534,35 +534,46 @@ std::vector<Connection> Datastructures::get_all_connections()
 Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
 {
     Path path;
+
     // Check if the source and target are the same
-    if (source == target) {
+    if (source == target || visitedAffiliations.count(source) > 0) {
         return path;
     }
+
+    visitedAffiliations.insert(source);
+
     auto it = affiliation_data.find(source);
     auto it2 = affiliation_data.find(target);
+
     if (it == affiliation_data.end() || it2 == affiliation_data.end()) {
+        visitedAffiliations.erase(source);  // Remove from visited set if not found
         return path;
     }
 
     std::vector<Connection> source_connections = get_connected_affiliations(source);
 
-
     for (const auto& source_conn : source_connections) {
         // Check if the connection leads to the target
-        if (source_conn.aff2 == target ) {
+        if (source_conn.aff2 == target) {
             path.push_back(source_conn);
+            visitedAffiliations.erase(source);  // Remove from visited set
             return path;
         }
-        // Recursively find a path from the current connection's aff2 to the target
-        Path subpath = get_any_path(source_conn.aff2, target);
 
-        // If a valid subpath is found, append it to the current path
-        if (!subpath.empty()) {
-            path.push_back(source_conn);
-            path.insert(path.end(), subpath.begin(), subpath.end());
-            return path;
+        // Recursively find a path from the current connection's aff2 to the target
+        if (visitedAffiliations.find(source_conn.aff2) == visitedAffiliations.end()){
+            Path subpath = get_any_path(source_conn.aff2, target);
+            if (!subpath.empty()) {
+                path.push_back(source_conn);
+                path.insert(path.end(), subpath.begin(), subpath.end());
+                visitedAffiliations.erase(source);  // Remove from visited set
+                return path;
+            }
         }
     }
+
+    // Remove from visited set before returning
+    visitedAffiliations.erase(source);
 
     // Return an empty path if no valid path is found
     return path;

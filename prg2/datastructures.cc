@@ -506,8 +506,14 @@ std::vector<Connection> Datastructures::get_all_connections()
             if (count > 0 && pair.first != pair2.first)
             {
                 Connection new_connection;
-                new_connection.aff1 = pair.first;
-                new_connection.aff2 = pair2.first;
+                if (pair.first < pair2.first){
+                    new_connection.aff1 = pair.first;
+                    new_connection.aff2 = pair2.first;
+                } else {
+                    new_connection.aff1 = pair2.first;
+                    new_connection.aff2 = pair.first;
+                }
+
                 new_connection.weight = count;
                 bool exists = false;
                 for (const auto& conn : all_connections){
@@ -527,18 +533,38 @@ std::vector<Connection> Datastructures::get_all_connections()
 
 Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
 {
-    std::vector<Connection> source_connections = get_connected_affiliations(source);
     Path path;
+    // Check if the source and target are the same
+    if (source == target) {
+        return path;
+    }
+    auto it = affiliation_data.find(source);
+    auto it2 = affiliation_data.find(target);
+    if (it == affiliation_data.end() || it2 == affiliation_data.end()) {
+        return path;
+    }
+
+    std::vector<Connection> source_connections = get_connected_affiliations(source);
+
 
     for (const auto& source_conn : source_connections) {
-        if (source_conn.aff2 == target) {
-                path.push_back(source_conn);
-                return path;
-            }
-        for (const auto& conn: get_any_path(source_conn.aff2, target)){
-            path.push_back(conn);
+        // Check if the connection leads to the target
+        if (source_conn.aff2 == target ) {
+            path.push_back(source_conn);
+            return path;
+        }
+        // Recursively find a path from the current connection's aff2 to the target
+        Path subpath = get_any_path(source_conn.aff2, target);
+
+        // If a valid subpath is found, append it to the current path
+        if (!subpath.empty()) {
+            path.push_back(source_conn);
+            path.insert(path.end(), subpath.begin(), subpath.end());
+            return path;
         }
     }
+
+    // Return an empty path if no valid path is found
     return path;
 }
 

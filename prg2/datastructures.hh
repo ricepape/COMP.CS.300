@@ -265,16 +265,20 @@ public:
 
     // PRG 2 functions:
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: The function goes through all connections in the 
+    // all_connections vector to check if the given id is connected to any other affiliations.
     std::vector<Connection> get_connected_affiliations(AffiliationID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n^2)
+    // Short rationale for estimate: The function goes through two loops in the affiliations_data
+    // to check the connections between all possible affiliations.
     std::vector<Connection> get_all_connections();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n^2)
+    // Short rationale for estimate: The function goes through all elements in the
+    // connections vector and then go through all elemnts in which then connection
+    // is connected to.
     Path get_any_path(AffiliationID source, AffiliationID target);
 
     // PRG2 optional functions

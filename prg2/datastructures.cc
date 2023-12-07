@@ -54,6 +54,9 @@ void Datastructures::clear_all()
     all_affiliations.clear();
     all_publications_vec.clear();
     sorted_affiliations_alp.clear();
+    all_connections.clear();
+    connected_affs.clear();
+    visitedAffiliations.clear();
 }
 
 std::vector<AffiliationID> Datastructures::get_all_affiliations()
@@ -166,6 +169,7 @@ bool Datastructures::add_publication(PublicationID id, const Name &name, Year ye
         publications_data[id] = new_pub;
         aff_change = true;
         pub_change = true;
+        get_all_connections();
         for (const auto& aff_id : affiliations)
         {
             affiliations_with_years[aff_id].insert({year, id});
@@ -243,6 +247,7 @@ bool Datastructures::add_affiliation_to_publication(AffiliationID affiliationid,
         publications_data[publicationid].affiliations.push_back(affiliationid);
         affiliations_with_years[affiliationid].insert({publications_data[publicationid].publication_year, publicationid});
         pub_change = true;
+        get_all_connections();
         return true;
     } else {
         return false;
@@ -401,7 +406,7 @@ bool Datastructures::remove_affiliation(AffiliationID id)
     }
 
     pub_change = true;
-
+    get_all_connections();
     return true;
 }
 
@@ -517,7 +522,7 @@ std::vector<Connection> Datastructures::get_all_connections()
                 new_connection.weight = count;
                 bool exists = false;
                 for (const auto& conn : all_connections){
-                    if (new_connection.aff1 == conn.aff2 && new_connection.aff2 == conn.aff1){
+                    if ((new_connection.aff1 == conn.aff2 && new_connection.aff2 == conn.aff1) || new_connection == conn){
                         exists = true;
                     }
                 }

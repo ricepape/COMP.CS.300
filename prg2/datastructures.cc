@@ -538,6 +538,7 @@ Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
     if (source == target) {
         return path;
     }
+
     auto it = affiliation_data.find(source);
     auto it2 = affiliation_data.find(target);
     if (it == affiliation_data.end() || it2 == affiliation_data.end()) {
@@ -553,8 +554,13 @@ Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
             path.push_back(source_conn);
             return path;
         }
+        // Avoid cycles by not visiting an affiliation that has already been visited
+        if (visited.find(source_conn.aff2) != visited.end()) {
+            continue;
+        }
+        visited.insert(source_conn.aff2);
         // Recursively find a path from the current connection's aff2 to the target
-        Path subpath = get_any_path(source_conn.aff2, target);
+        Path subpath = get_any_path(source_conn.aff2, target, visited);
 
         // If a valid subpath is found, append it to the current path
         if (!subpath.empty()) {

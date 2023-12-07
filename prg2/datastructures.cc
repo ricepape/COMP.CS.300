@@ -465,26 +465,24 @@ std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID
     connected_affs.clear();
     auto it = affiliation_data.find(id);
     if (it == affiliation_data.end()) {
-        return all_connections;
+        return connected_affs;
     }
     for (const auto& conn : all_connections)
     {
-        if (conn.aff1 == id || conn.aff2 == id)
+        if (conn.aff1 == id)
         {
-            if (conn.aff2 == id)
-            {
-                Connection a;
-                a.aff1 = conn.aff2;
-                a.aff2 = conn.aff1;
-                a.weight = conn.weight;
-                connected_affs.push_back(a);
-            }
-            else {
-            connected_affs.push_back(conn);
-            }
+            connected_affs.push_back(conn); 
+        }
+        else if (conn.aff2 == id)
+        {
+            Connection new_conn;
+            new_conn.aff1 = conn.aff2;
+            new_conn.aff2 = conn.aff1;
+            new_conn.weight = conn.weight;
+            connected_affs.push_back(new_conn);
         }
     }
-    return all_connections;
+    return connected_affs;
 }
 
 std::vector<Connection> Datastructures::get_all_connections()
@@ -505,7 +503,7 @@ std::vector<Connection> Datastructures::get_all_connections()
                     count +=1;
                 }
             }
-            if (count > 0)
+            if (count > 0 && pair.first != pair2.first)
             {
                 Connection new_connection;
                 new_connection.aff1 = pair.first;
@@ -513,7 +511,7 @@ std::vector<Connection> Datastructures::get_all_connections()
                 new_connection.weight = count;
                 bool exists = false;
                 for (const auto& conn : all_connections){
-                    if (new_connection == conn){
+                    if (new_connection.aff1 == conn.aff2 && new_connection.aff2 == conn.aff1){
                         exists = true;
                     }
                 }

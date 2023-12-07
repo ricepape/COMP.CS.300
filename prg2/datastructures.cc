@@ -537,8 +537,9 @@ Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
                 path.push_back(source_conn);
                 return path;
             }
-        for (const auto& conn: get_any_path(source_conn.aff2, target))
-        path.push_back(conn);
+        for (const auto& conn: get_any_path(source_conn.aff2, target)){
+            path.push_back(conn);
+        }
     }
     return path;
 }

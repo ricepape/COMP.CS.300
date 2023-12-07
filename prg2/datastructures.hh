@@ -339,6 +339,8 @@ private:
     std::vector<Connection> all_connections;
     std::vector<Connection> connected_affs;
     std::unordered_set<AffiliationID> visitedAffiliations;
+    std::unordered_map<AffiliationID, std::vector<Connection>> affiliation_connections;
+
 };
 
 #endif // DATASTRUCTURES_HH

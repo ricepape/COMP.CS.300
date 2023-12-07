@@ -9,6 +9,8 @@
 #include <random>
 
 #include <cmath>
+#include <set>
+#include <queue>
 
 std::minstd_rand rand_engine; // Reasonably quick pseudo-random generator
 
@@ -467,121 +469,65 @@ bool Datastructures::remove_publication(PublicationID publicationid)
 
 std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID id)
 {
-    connected_affs.clear();
-    auto it = affiliation_data.find(id);
-    if (it == affiliation_data.end()) {
-        return connected_affs;
-    }
-    for (const auto& conn : all_connections)
-    {
-        if (conn.aff1 == id)
-        {
-            connected_affs.push_back(conn);
-        }
-        else if (conn.aff2 == id)
-        {
-            Connection new_conn;
-            new_conn.aff1 = conn.aff2;
-            new_conn.aff2 = conn.aff1;
-            new_conn.weight = conn.weight;
-            connected_affs.push_back(new_conn);
-        }
-    }
-    return connected_affs;
+    return affiliation_connections[id];
 }
 
 std::vector<Connection> Datastructures::get_all_connections()
 {
     if (pub_change){
-    all_connections.clear();
-    for (const auto& pair : affiliation_data)
-    {
-        std::vector<PublicationID> main_pubs = get_publications(pair.first);
-        for (const auto& pair2 : affiliation_data)
+        all_connections.clear();
+        for (const auto& pair : affiliation_data)
         {
-            std::vector<PublicationID> other_pubs = get_publications(pair2.first);
-            int count = 0;
-            for (const auto& pub : main_pubs)
+            std::set<PublicationID> main_pubs(get_publications(pair.first).begin(), get_publications(pair.first).end());
+            for (const auto& pair2 : affiliation_data)
             {
-                if (std::find(other_pubs.begin(), other_pubs.end(), pub) != other_pubs.end())
+                std::set<PublicationID> other_pubs(get_publications(pair2.first).begin(), get_publications(pair2.first).end());
+                std::vector<PublicationID> intersection;
+                std::set_intersection(main_pubs.begin(), main_pubs.end(), other_pubs.begin(), other_pubs.end(), std::back_inserter(intersection));
+                int count = intersection.size();
+                if (count > 0 && pair.first != pair2.first)
                 {
-                    count +=1;
-                }
-            }
-            if (count > 0 && pair.first != pair2.first)
-            {
-                Connection new_connection;
-                if (pair.first < pair2.first){
-                    new_connection.aff1 = pair.first;
-                    new_connection.aff2 = pair2.first;
-                } else {
-                    new_connection.aff1 = pair2.first;
-                    new_connection.aff2 = pair.first;
-                }
-
-                new_connection.weight = count;
-                bool exists = false;
-                for (const auto& conn : all_connections){
-                    if ((new_connection.aff1 == conn.aff2 && new_connection.aff2 == conn.aff1) || new_connection == conn){
-                        exists = true;
-                    }
-                }
-                if (!exists){
+                    Connection new_connection;
+                    new_connection.aff1 = std::min(pair.first, pair2.first);
+                    new_connection.aff2 = std::max(pair.first, pair2.first);
+                    new_connection.weight = count;
                     all_connections.push_back(new_connection);
+                    affiliation_connections[new_connection.aff1].push_back(new_connection);
+                    std::swap(new_connection.aff1, new_connection.aff2);
+                    affiliation_connections[new_connection.aff1].push_back(new_connection);
                 }
             }
         }
-    }
     }
     return all_connections;
 }
 
 Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
 {
-    Path path;
+    std::queue<AffiliationID> queue;
+    std::unordered_map<AffiliationID, Connection> parent;
 
-    // Check if the source and target are the same
-    if (source == target || visitedAffiliations.count(source) > 0) {
-        return path;
-    }
-
-    visitedAffiliations.insert(source);
-
-    auto it = affiliation_data.find(source);
-    auto it2 = affiliation_data.find(target);
-
-    if (it == affiliation_data.end() || it2 == affiliation_data.end()) {
-        visitedAffiliations.erase(source);  // Remove from visited set if not found
-        return path;
-    }
-
-    std::vector<Connection> source_connections = get_connected_affiliations(source);
-
-    for (const auto& source_conn : source_connections) {
-        // Check if the connection leads to the target
-        if (source_conn.aff2 == target) {
-            path.push_back(source_conn);
-            visitedAffiliations.erase(source);  // Remove from visited set
+    queue.push(source);
+    while (!queue.empty()) {
+        AffiliationID current = queue.front();
+        queue.pop();
+        if (current == target) {
+            Path path;
+            while (current != source) {
+                path.push_back(parent[current]);
+                current = parent[current].aff1;
+            }
+            std::reverse(path.begin(), path.end());
             return path;
         }
-
-        // Recursively find a path from the current connection's aff2 to the target
-        if (visitedAffiliations.find(source_conn.aff2) == visitedAffiliations.end()){
-            Path subpath = get_any_path(source_conn.aff2, target);
-            if (!subpath.empty()) {
-                path.push_back(source_conn);
-                path.insert(path.end(), subpath.begin(), subpath.end());
-                visitedAffiliations.erase(source);  // Remove from visited set
-                return path;
+        for (const auto& conn : get_connected_affiliations(current)) {
+            if (parent.count(conn.aff2) == 0) {
+                parent[conn.aff2] = conn;
+                queue.push(conn.aff2);
             }
         }
     }
-
-    // Remove from visited set before returning
-    visitedAffiliations.erase(source);
-
-    // Return an empty path if no valid path is found
-    return path;
+    return Path();
 }
 
 Path Datastructures::get_path_with_least_affiliations(AffiliationID /*source*/, AffiliationID /*target*/)

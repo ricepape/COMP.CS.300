@@ -1,14 +1,14 @@
 // Datastructures.cc
 //
-
+// Student name:
+// Student email:
+// Student number:
 
 #include "datastructures.hh"
 
 #include <random>
 
 #include <cmath>
-
-using namespace std;
 
 std::minstd_rand rand_engine; // Reasonably quick pseudo-random generator
 
@@ -29,7 +29,9 @@ Type random_in_range(Type start, Type end)
 // warning about unused parameters on operations you haven't yet implemented.)
 
 Datastructures::Datastructures()
-{}
+{
+    // Write any initialization you need here
+}
 
 Datastructures::~Datastructures()
 {
@@ -163,6 +165,7 @@ bool Datastructures::add_publication(PublicationID id, const Name &name, Year ye
         new_pub.affiliations = affiliations;
         publications_data[id] = new_pub;
         aff_change = true;
+        pub_change = true;
         for (const auto& aff_id : affiliations)
         {
             affiliations_with_years[aff_id].insert({year, id});
@@ -239,6 +242,7 @@ bool Datastructures::add_affiliation_to_publication(AffiliationID affiliationid,
     (publications_data.find(publicationid) != publications_data.end())) {
         publications_data[publicationid].affiliations.push_back(affiliationid);
         affiliations_with_years[affiliationid].insert({publications_data[publicationid].publication_year, publicationid});
+        pub_change = true;
         return true;
     } else {
         return false;
@@ -396,6 +400,8 @@ bool Datastructures::remove_affiliation(AffiliationID id)
         affiliations_with_distances.erase(distance_it);
     }
 
+    pub_change = true;
+
     return true;
 }
 
@@ -448,7 +454,110 @@ bool Datastructures::remove_publication(PublicationID publicationid)
 
         publications_data.erase(publicationid);
 
+        pub_change = true;
+
         return true;
 
 }
+
+std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID id)
+{
+    connected_affs.clear();
+    auto it = affiliation_data.find(id);
+    if (it == affiliation_data.end()) {
+        return all_connections;
+    }
+    for (const auto& conn : all_connections)
+    {
+        if (conn.aff1 == id || conn.aff2 == id)
+        {
+            if (conn.aff2 == id)
+            {
+                Connection a;
+                a.aff1 = conn.aff2;
+                a.aff2 = conn.aff1;
+                a.weight = conn.weight;
+                connected_affs.push_back(a);
+            }
+            else {
+            connected_affs.push_back(conn);
+            }
+        }
+    }
+    return all_connections;
+}
+
+std::vector<Connection> Datastructures::get_all_connections()
+{
+    if (pub_change){
+    all_connections.clear();
+    for (const auto& pair : affiliation_data)
+    {
+        std::vector<PublicationID> main_pubs = get_publications(pair.first);
+        for (const auto& pair2 : affiliation_data)
+        {
+            std::vector<PublicationID> other_pubs = get_publications(pair2.first);
+            int count = 0;
+            for (const auto& pub : main_pubs)
+            {
+                if (std::find(other_pubs.begin(), other_pubs.end(), pub) != other_pubs.end())
+                {
+                    count +=1;
+                }
+            }
+            if (count > 0)
+            {
+                Connection new_connection;
+                new_connection.aff1 = id;
+                new_connection.aff2 = pair.first;
+                new_connection.weight = count;
+                bool exists = false;
+                for (const auto& conn : all_connections){
+                    if (new_connection == conn){
+                        exists = true;
+                    }
+                }
+                if (!exists){
+                    all_connections.push_back(new_connection);
+                }
+            }
+        }    
+    }
+    }
+    return all_connections;
+}
+
+Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
+{
+    std::vector<Connection> source_connections = get_connected_affiliations(source);
+    Path path;
+
+    for (const auto& source_conn : source_connections) {
+        if (source_conn.aff2 == target) {
+                path.push_back(source_conn);
+                return path;
+            }
+        path.push_back(get_any_path(source_conn.aff2, target));
+    }
+    return path;
+}
+
+Path Datastructures::get_path_with_least_affiliations(AffiliationID /*source*/, AffiliationID /*target*/)
+{
+    // Replace the line below with your implementation
+    throw NotImplemented("get_path_with_least_affiliations()");
+}
+
+Path Datastructures::get_path_of_least_friction(AffiliationID /*source*/, AffiliationID /*target*/)
+{
+    // Replace the line below with your implementation
+    throw NotImplemented("get_path_of_least_friction()");
+}
+
+PathWithDist Datastructures::get_shortest_path(AffiliationID /*source*/, AffiliationID /*target*/)
+{
+    // Replace the line below with your implementation
+    throw NotImplemented("get_shortest_path()");
+}
+
 

@@ -1,6 +1,8 @@
 // Datastructures.hh
 //
-
+// Student name:
+// Student email:
+// Student number:
 
 #ifndef DATASTRUCTURES_HH
 #define DATASTRUCTURES_HH
@@ -17,14 +19,18 @@
 #include <unordered_set>
 #include <math.h>
 
-
 // Types for IDs
 using AffiliationID = std::string;
 using PublicationID = unsigned long long int;
 using Name = std::string;
 using Year = unsigned short int;
 using Weight = int;
+struct Connection;
+// Type for a distance (in arbitrary units)
 using Distance = int;
+
+using Path = std::vector<Connection>;
+using PathWithDist = std::vector<std::pair<Connection,Distance>>;
 
 // Return values for cases where required thing was not found
 AffiliationID const NO_AFFILIATION = "---";
@@ -72,6 +78,18 @@ inline bool operator<(Coord c1, Coord c2)
 
 // Return value for cases where coordinates were not found
 Coord const NO_COORD = {NO_VALUE, NO_VALUE};
+
+struct Connection
+{
+    AffiliationID aff1 = NO_AFFILIATION;
+    AffiliationID aff2 = NO_AFFILIATION;
+    Weight weight = NO_WEIGHT;
+    bool operator==(const Connection& c1) const{
+        return (aff1==c1.aff1) && (aff2==c1.aff2) && (weight==c1.weight);
+    }
+};
+const Connection NO_CONNECTION{NO_AFFILIATION,NO_AFFILIATION,NO_WEIGHT};
+
 
 // Return value for cases where Distance is unknown
 Distance const NO_DISTANCE = NO_VALUE;
@@ -245,6 +263,34 @@ public:
     // to the PublicationID set, then from the set delete the given id.
     bool remove_publication(PublicationID publicationid);
 
+    // PRG 2 functions:
+
+    // Estimate of performance:
+    // Short rationale for estimate:
+    std::vector<Connection> get_connected_affiliations(AffiliationID id);
+
+    // Estimate of performance:
+    // Short rationale for estimate:
+    std::vector<Connection> get_all_connections();
+
+    // Estimate of performance:
+    // Short rationale for estimate:
+    Path get_any_path(AffiliationID source, AffiliationID target);
+
+    // PRG2 optional functions
+
+    // Estimate of performance:
+    // Short rationale for estimate:
+    Path get_path_with_least_affiliations(AffiliationID source, AffiliationID target);
+
+    // Estimate of performance:
+    // Short rationale for estimate:
+    Path get_path_of_least_friction(AffiliationID source, AffiliationID target);
+
+    // Estimate of performance:
+    // Short rationale for estimate:
+    PathWithDist get_shortest_path(AffiliationID source, AffiliationID target);
+
 
 private:
     struct AffiliationData {
@@ -284,7 +330,10 @@ private:
     bool aff_change = false;
     bool aff_change_coord = false;
     bool dis_change = false;
+    bool pub_change = false;
     std::vector<AffiliationID> sorted_affiliations_alp;
+    std::vector<Connection> all_connections;
+    std::vector<Connection> connected_affs;
 };
 
 #endif // DATASTRUCTURES_HH

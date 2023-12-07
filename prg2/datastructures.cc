@@ -508,8 +508,8 @@ std::vector<Connection> Datastructures::get_all_connections()
             if (count > 0)
             {
                 Connection new_connection;
-                new_connection.aff1 = id;
-                new_connection.aff2 = pair.first;
+                new_connection.aff1 = pair.first;
+                new_connection.aff2 = pair2.first;
                 new_connection.weight = count;
                 bool exists = false;
                 for (const auto& conn : all_connections){
@@ -537,7 +537,8 @@ Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
                 path.push_back(source_conn);
                 return path;
             }
-        path.push_back(get_any_path(source_conn.aff2, target));
+        for (const auto& conn: get_any_path(source_conn.aff2, target))
+        path.push_back(conn);
     }
     return path;
 }

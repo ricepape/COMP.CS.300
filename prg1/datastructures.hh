@@ -1,6 +1,8 @@
 // Datastructures.hh
 //
-
+// Student name:
+// Student email:
+// Student number:
 
 #ifndef DATASTRUCTURES_HH
 #define DATASTRUCTURES_HH
@@ -12,10 +14,12 @@
 #include <limits>
 #include <functional>
 #include <exception>
+#include <memory>
 #include <map>
-#include <unordered_map>
-#include <unordered_set>
 #include <math.h>
+#include <unordered_set>
+#include <stack>
+#include <unordered_map>
 
 
 // Types for IDs
@@ -65,7 +69,13 @@ struct CoordHash
 // as key for std::map/set
 inline bool operator<(Coord c1, Coord c2)
 {
+    Distance dist_1 = sqrt(pow(c1.x,2)+pow(c1.y,2));
+    Distance dist_2 = sqrt(pow(c2.x,2)+pow(c2.y,2));
+
+    if (dist_1 < dist_2) {return true;}
+    if (dist_2 < dist_1) {return false;}
     if (c1.y < c2.y) { return true; }
+
     else if (c2.y < c1.y) { return false; }
     else { return c1.x < c2.x; }
 }
@@ -101,190 +111,182 @@ public:
     ~Datastructures();
 
     // Estimate of performance: O(1)
-    // Short rationale for estimate: The function returns the size of the container
-    // only, not going through the elements
+    // Short rationale for estimate: The size of a std::unordered_map
+    // is typically implemented to be retrieved in constant time.
     unsigned int get_affiliation_count();
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: The function goes through each element
-    // in the container to clear
+    // Short rationale for estimate: The clear-operation for std::unordered_map
+    // and std::vector typically has a linear time complexity proportional to
+    // the number of elements.
     void clear_all();
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: The function goes through each element
-    // in the container to retrieve the element and add element to a vector
+    // Short rationale for estimate: returning a vector by value typically
+    // involves a move operation, which is linear.
     std::vector<AffiliationID> get_all_affiliations();
 
-    // Estimate of performance: O(1)
-    // Short rationale for estimate: The function goes through the map to 
-    // check and inserting into maps
+    // Estimate of performance: O(n)
+    // Short rationale for estimate:The find()-operation is O(n) on average, so adding a new
+    // affiliation is linear.
     bool add_affiliation(AffiliationID id, Name const& name, Coord xy);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Goes through the elements, in worst case all elemets
-    // in the map to check and return the name.
+    // Short rationale for estimate:The find()-operation is
+    // O(n) on average, so getting an affiliation name is linear.
     Name get_affiliation_name(AffiliationID id);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Goes through the elements, in worst case all elemets
-    // in the map to check and return the coordinates.
+    // Short rationale for estimate: The find()-operation is
+    // O(n) on average, so getting an affiliation coordinate is linear.
     Coord get_affiliation_coord(AffiliationID id);
 
 
     // We recommend you implement the operations below only after implementing the ones above
 
-    // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements and insert them 
-    // into a vector.
+    // Estimate of performance: O(n * log(n))
+    // Short rationale for estimate: This method uses a bucket-sort,
+    // which is typically estimated as O(n * log(n)).
     std::vector<AffiliationID> get_affiliations_alphabetically();
 
-    // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements and insert them 
-    // into a vector with distance increasing.
+    // Estimate of performance: O(n * log(n))
+    // Short rationale for estimate: extracts the affiliations from the Coordinate_map,
+    // and the final sorting step determines the time complexity.
     std::vector<AffiliationID> get_affiliations_distance_increasing();
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements to check if the 
-    // coordinations exists
+    // Short rationale for estimate:The find()-operation is
+    // O(n) on average, so finding an affiliation with a coordinate is linear.
     AffiliationID find_affiliation_with_coord(Coord xy);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements in worst case 
-    // to check if the affiliation exists
+    // Short rationale for estimate: The std::map::erase and std::map::operator[]
+    // operations have linear time complexity for balanced trees.
     bool change_affiliation_coord(AffiliationID id, Coord newcoord);
 
 
     // We recommend you implement the operations below only after implementing the ones above
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements to check if the publication exists 
-    // then add it to the container.
+    // Short rationale for estimate: The find()-operation is
+    // O(n) on average, so adding a new publication is linear.
     bool add_publication(PublicationID id, Name const& name, Year year, const std::vector<AffiliationID> & affiliations);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements to get and push them 
-    // into the container.
+    // Short rationale for estimate: returning a vector by value typically
+    // involves a move operation, which is linear.
     std::vector<PublicationID> all_publications();
 
-    // Estimate of performance: O(1)
-    // Short rationale for estimate: Return a name value with a given key, derived instantly
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: The find()-operation
+    // is O(n) on average, so getting a publication name is linear.
     Name get_publication_name(PublicationID id);
 
-    // Estimate of performance: O(1)
-    // Short rationale for estimate: Return the year value with a given key, derived instantly
+    // Estimate of performance: O(n)
+    // Short rationale for estimate:The find()-operation is
+    // O(n) on average, so getting a publication year is linear.
     Year get_publication_year(PublicationID id);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Return the vector of affiliationid value with a given key
+    // Short rationale for estimate: The find()-operation is
+    // O(n) on average, so getting affiliations is linear.
     std::vector<AffiliationID> get_affiliations(PublicationID id);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through the elements in publications_data to check
-    // if the ids exist, then add instantly the new value.
+    // Short rationale for estimate: The find()-operation is
+    // O(n) on average, so adding a reference is linear.
     bool add_reference(PublicationID id, PublicationID parentid);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through the elements in publications_data to check
-    // if the id exists, then add instantly the new value.
+    // Short rationale for estimate: The find()-operation is
+    //  O(n) on average, so getting a direct reference is linear.
     std::vector<PublicationID> get_direct_references(PublicationID id);
 
-    // Estimate of performance: O(n)
-    // Short rationale for estimate: Use the find function to go through all elements
-    // to check its existence.
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: This method has several
+    // steps so it is O(log(n)) on average.
     bool add_affiliation_to_publication(AffiliationID affiliationid, PublicationID publicationid);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through each element in the publication data,
-    // the for each publication, go through all elements in the related affiliations
+    // Short rationale for estimate: The find()-operation is
+    // O(n) on average, so getting publications is linear.
     std::vector<PublicationID> get_publications(AffiliationID id);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Use the find function to go through all elements
-    // to check the publication id's existence.
+    // Short rationale for estimate: The find()-operation is
+    // O(n) on average, so getting a parent is linear.
     PublicationID get_parent(PublicationID id);
 
-    // Estimate of performance: O(n^2)
-    // Short rationale for estimate: Go through each element in the publication data,
-    // the for each publication, go through all elements in the related affiliations.
-    // All the other has time complexity small enough compared to this
+    // Estimate of performance: O(n * log(n))
+    // Short rationale for estimate: Contains a lot of steps, find()-
+    // operator, for-loop and sorting.´
     std::vector<std::pair<Year, PublicationID>> get_publications_after(AffiliationID affiliationid, Year year);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through each element to check the existence
-    // of the publication id and go through the chain of parent reference.
+    // Short rationale for estimate: The find()-operation is
+    //  O(n) on average, so getting referenced by chain is linear.
     std::vector<PublicationID> get_referenced_by_chain(PublicationID id);
-
 
     // Non-compulsory operations
 
-    // Estimate of performance: O(n)
-    // Short rationale for estimate: The function conducts a search through all elements 
-    // to check if the id exists in the database. A for loop goes through all elements
-    // from the references vector.
+    // Estimate of performance:
+    // Short rationale for estimate:
     std::vector<PublicationID> get_all_references(PublicationID id);
 
-    // Estimate of performance: O(n)
-    // Short rationale for estimate: The for loop goes through all elements in the
-    // affiliations_with_distances map to calculate the distance. Then the sort is used
-    // to go through all elements and rearrange them. Another for loop is úed to get
-    // the desired number of results.
+    // Estimate of performance:
+    // Short rationale for estimate:
     std::vector<AffiliationID> get_affiliations_closest_to(Coord xy);
 
-    // Estimate of performance: O(n^2)
-    // Short rationale for estimate: Go through all elements in the given map to access
-    // to the AffiliationID vector, then from that delete the given id.
+    void find_ancestors(PublicationID id, std::unordered_set<PublicationID>& ancestors);
+
+
+    // Estimate of performance:
+    // Short rationale for estimate:
     bool remove_affiliation(AffiliationID id);
 
-    // Estimate of performance: O(n^2)
-    // Short rationale for estimate: The function go through two vectors 
-    // to compare if the parents are the same, thus two for loops.
+    // Estimate of performance:
+    // Short rationale for estimate:
     PublicationID get_closest_common_parent(PublicationID id1, PublicationID id2);
 
-    // Estimate of performance: O(n^2)
-    // Short rationale for estimate: Go through all elements in the given map to access
-    // to the PublicationID set, then from the set delete the given id.
+    // Estimate of performance:
+    // Short rationale for estimate:
     bool remove_publication(PublicationID publicationid);
 
+    double calculate_distance(const Coord& coord1, const Coord& coord2);
 
 private:
-    struct AffiliationData {
+
+    struct aff_info
+    {
+        AffiliationID aff_ID;
         Name name;
         Coord coordinates;
+        std::vector<PublicationID> publications;
     };
 
-    std::unordered_map<AffiliationID, AffiliationData> affiliation_data;
-
-    struct PublicationData {
-       Name name = NO_NAME;
-       Year publication_year = NO_YEAR;
-       std::vector<AffiliationID> affiliations;
-       std::unordered_set<PublicationID> referencing;
-       PublicationID referenced_by = NO_PUBLICATION;
+    struct pub_info
+    {
+        PublicationID pub_ID;
+        Name name;
+        Year year;
+        std::vector<AffiliationID> affiliations;
+        std::vector<PublicationID> references;
+        PublicationID referenced_by;
     };
 
-    struct DistanceComparator{
-        bool operator()(Coord x1, Coord x2) const {
-            if (std::sqrt(x1.x*x1.x+x1.y*x1.y) < std::sqrt(x2.x*x2.x+x2.y*x2.y)){
-                return true;
-            }
-            if (std::sqrt(x1.x*x1.x+x1.y*x1.y) > std::sqrt(x2.x*x2.x+x2.y*x2.y)){
-                return false;
-            }
-            else return x1.y < x2.y;
-        }
-    };
+    std::unordered_map<AffiliationID, aff_info> Affiliations_map;
+    std::vector<AffiliationID> Affiliations_vec;
 
-    std::unordered_map<PublicationID, PublicationData> publications_data;
-    std::map<Coord, AffiliationID, DistanceComparator> affiliations_with_distances;
-    std::map<Name, AffiliationID> affiliations_with_names;
-    std::unordered_map<AffiliationID, std::unordered_map<Year, PublicationID>> affiliations_with_years;
-    std::vector<AffiliationID> sorted_affiliations;
-    std::vector<AffiliationID> all_affiliations;
-    std::vector<PublicationID> all_publications_vec;
-    bool aff_change = false;
-    bool aff_change_coord = false;
-    bool dis_change = false;
-    std::vector<AffiliationID> sorted_affiliations_alp;
+    std::map<Coord, aff_info> Coordinate_map;
+    std::vector<AffiliationID> affiliations_increasing;
+    void update_coord();
+
+    std::map<Name, aff_info> Name_map;
+    std::vector<AffiliationID> alphabetical_names;
+    void update_names();
+
+    std::unordered_map<PublicationID, pub_info> Publications_map;
+    std::vector<PublicationID> Publications_vec;
 };
 
 #endif // DATASTRUCTURES_HH

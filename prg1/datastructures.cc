@@ -430,38 +430,6 @@ bool Datastructures::remove_affiliation(AffiliationID id)
     else {return false;}
 }
 
-PublicationID Datastructures::get_closest_common_parent(PublicationID id1, PublicationID id2)
-{
-    auto it_1 = Publications_map.find(id1);
-    auto it_2 = Publications_map.find(id2);
-
-    if (it_1 != Publications_map.end() && it_2 != Publications_map.end()){
-
-        auto parent_1 = id1;
-        auto parent_2 = id2;
-
-        while (parent_1 != NO_PUBLICATION && parent_2 != NO_PUBLICATION){
-
-            if (parent_1 == parent_2) {return parent_2;}
-
-            if (get_parent(parent_1) != NO_PUBLICATION){
-                parent_1 = get_parent(parent_1);
-            }
-
-            if (get_parent(parent_2) != NO_PUBLICATION){
-                parent_2 = get_parent(parent_2);
-            }
-
-            if (get_parent(parent_1) == NO_PUBLICATION && get_parent(parent_2) == NO_PUBLICATION){
-                return parent_2;
-            }
-        }
-    }
-    else {
-        return NO_PUBLICATION;
-    }
-}
-
 bool Datastructures::remove_publication(PublicationID publicationid)
 {
     auto it = Publications_map.find(publicationid);

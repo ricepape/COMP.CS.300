@@ -246,6 +246,10 @@ public:
 
     // Estimate of performance:
     // Short rationale for estimate:
+    PublicationID get_closest_common_parent(PublicationID id1, PublicationID id2);
+
+    // Estimate of performance:
+    // Short rationale for estimate:
     bool remove_publication(PublicationID publicationid);
 
     double calculate_distance(const Coord& coord1, const Coord& coord2);

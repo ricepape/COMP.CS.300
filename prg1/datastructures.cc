@@ -457,9 +457,7 @@ PublicationID Datastructures::get_closest_common_parent(PublicationID id1, Publi
             }
         }
     }
-    else {
-        return NO_PUBLICATION;
-    }
+    return NO_PUBLICATION;
 }
 
 bool Datastructures::remove_publication(PublicationID publicationid)

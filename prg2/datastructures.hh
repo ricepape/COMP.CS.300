@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <math.h>
+#include <set>
 
 // Types for IDs
 using AffiliationID = std::string;

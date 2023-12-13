@@ -476,12 +476,17 @@ std::vector<Connection> Datastructures::get_all_connections()
 {
     if (pub_change){
         all_connections.clear();
+        // Pre-compute the publications for each affiliation
         for (const auto& pair : affiliation_data)
         {
-            std::set<PublicationID> main_pubs(get_publications(pair.first).begin(), get_publications(pair.first).end());
+            affiliation_publications[pair.first] = std::set<PublicationID>(get_publications(pair.first).begin(), get_publications(pair.first).end());
+        }
+        for (const auto& pair : affiliation_data)
+        {
+            std::set<PublicationID>& main_pubs = affiliation_publications[pair.first];
             for (const auto& pair2 : affiliation_data)
             {
-                std::set<PublicationID> other_pubs(get_publications(pair2.first).begin(), get_publications(pair2.first).end());
+                std::set<PublicationID>& other_pubs = affiliation_publications[pair2.first];
                 std::vector<PublicationID> intersection;
                 std::set_intersection(main_pubs.begin(), main_pubs.end(), other_pubs.begin(), other_pubs.end(), std::back_inserter(intersection));
                 int count = intersection.size();

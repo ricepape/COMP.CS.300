@@ -59,6 +59,8 @@ void Datastructures::clear_all()
     all_connections.clear();
     connected_affs.clear();
     visitedAffiliations.clear();
+    affiliationPublications.clear();
+    affiliation_connections.clear();
 }
 
 std::vector<AffiliationID> Datastructures::get_all_affiliations()
@@ -467,43 +469,53 @@ bool Datastructures::remove_publication(PublicationID publicationid)
 
 }
 
-std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID id)
-{
-    return affiliation_connections[id];
-}
-
 std::vector<Connection> Datastructures::get_all_connections()
 {
-    if (pub_change){
+    if (pub_change) {
         all_connections.clear();
-        // Pre-compute the publications for each affiliation
-        for (const auto& pair : affiliation_data)
-        {
-            affiliation_publications[pair.first] = std::unordered_set<PublicationID>(get_publications(pair.first).begin(), get_publications(pair.first).end());
+        affiliationPublications.clear();
+
+        // Populate the hash map with affiliations and their associated publications
+        for (const auto& pair : affiliation_data) {
+            const AffiliationID& affID = pair.first;
+            const std::vector<PublicationID>& publications = get_publications(affID);
+            affiliationPublications[affID] = std::set<PublicationID>(publications.begin(), publications.end());
         }
-        for (const auto& pair : affiliation_data)
-        {
-            std::unordered_set<PublicationID>& main_pubs = affiliation_publications[pair.first];
-            for (const auto& pair2 : affiliation_data)
-            {
-                std::unordered_set<PublicationID>& other_pubs = affiliation_publications[pair2.first];
-                std::vector<PublicationID> intersection;
-                std::set_intersection(main_pubs.begin(), main_pubs.end(), other_pubs.begin(), other_pubs.end(), std::back_inserter(intersection));
-                int count = intersection.size();
-                if (count > 0 && pair.first != pair2.first)
-                {
-                    Connection new_connection;
-                    new_connection.aff1 = std::min(pair.first, pair2.first);
-                    new_connection.aff2 = std::max(pair.first, pair2.first);
-                    new_connection.weight = count;
-                    all_connections.push_back(new_connection);
-                    affiliation_connections[new_connection.aff1].push_back(new_connection);
-                    std::swap(new_connection.aff1, new_connection.aff2);
-                    affiliation_connections[new_connection.aff1].push_back(new_connection);
+
+        // Iterate over the affiliations and find common publications efficiently using the hash map
+        for (auto it1 = affiliation_data.begin(); it1 != affiliation_data.end(); ++it1) {
+            for (auto it2 = std::next(it1); it2 != affiliation_data.end(); ++it2) {
+                const AffiliationID& aff1 = it1->first;
+                const AffiliationID& aff2 = it2->first;
+
+                // Find common publications using set_intersection
+                std::vector<PublicationID> commonPublications;
+                std::set_intersection(
+                    affiliationPublications[aff1].begin(), affiliationPublications[aff1].end(),
+                    affiliationPublications[aff2].begin(), affiliationPublications[aff2].end(),
+                    std::back_inserter(commonPublications)
+                );
+
+                // If there are common publications, create a connection
+                if (!commonPublications.empty()) {
+                    Connection newConnection;
+                    newConnection.aff1 = std::min(aff1, aff2);
+                    newConnection.aff2 = std::max(aff1, aff2);
+                    newConnection.weight = static_cast<int>(commonPublications.size());
+
+                    all_connections.push_back(newConnection);
+
+                    // Update the affiliation_connections data structure
+                    affiliation_connections[newConnection.aff1].push_back(newConnection);
+                    std::swap(newConnection.aff1, newConnection.aff2);
+                    affiliation_connections[newConnection.aff1].push_back(newConnection);
                 }
             }
         }
+
+        pub_change = false;
     }
+
     return all_connections;
 }
 

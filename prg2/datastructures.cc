@@ -468,6 +468,11 @@ bool Datastructures::remove_publication(PublicationID publicationid)
         return true;
 
 }
+std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID id)
+{
+    return affiliation_connections[id];
+}
+
 
 std::vector<Connection> Datastructures::get_all_connections()
 {

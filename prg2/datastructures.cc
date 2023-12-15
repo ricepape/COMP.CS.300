@@ -494,7 +494,7 @@ std::vector<Connection> Datastructures::get_all_connections()
                 const AffiliationID& aff2 = it2->first;
 
                 // Find common publications using set_intersection
-                std::vector<PublicationID> commonPublications;
+                commonPublications.clear();
                 std::set_intersection(
                     affiliationPublications[aff1].begin(), affiliationPublications[aff1].end(),
                     affiliationPublications[aff2].begin(), affiliationPublications[aff2].end(),

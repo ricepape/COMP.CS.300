@@ -585,9 +585,9 @@ Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
     return path;
 }
 
-Path Datastructures::get_path_with_least_affiliations(AffiliationID source, AffiliationID target)
+Path Datastructures::get_path_with_least_affiliations(AffiliationID /*source*/, AffiliationID /*target*/)
 {
-    get_any_path(source, target);
+   throw NotImplemented("get_path_of_least_friction()");
 }
 
 Path Datastructures::get_path_of_least_friction(AffiliationID /*source*/, AffiliationID /*target*/)
@@ -596,9 +596,8 @@ Path Datastructures::get_path_of_least_friction(AffiliationID /*source*/, Affili
     throw NotImplemented("get_path_of_least_friction()");
 }
 
-PathWithDist Datastructures::get_shortest_path(AffiliationID /*source*/, AffiliationID /*target*/)
+PathWithDist Datastructures::get_shortest_path(AffiliationID source, AffiliationID target)
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("get_shortest_path()");
+    get_any_path(source, target);
 }
 

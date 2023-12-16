@@ -342,7 +342,7 @@ private:
     std::unordered_set<AffiliationID> visitedAffiliations;
     std::unordered_map<AffiliationID, std::vector<Connection>> affiliation_connections;
     std::unordered_map<AffiliationID, std::set<PublicationID>> affiliationPublications;
-    std::vector<PublicationID> commonPublications;
+
 
 };
 

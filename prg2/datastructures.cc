@@ -9,8 +9,6 @@
 #include <random>
 
 #include <cmath>
-#include <set>
-#include <queue>
 
 std::minstd_rand rand_engine; // Reasonably quick pseudo-random generator
 
@@ -59,8 +57,6 @@ void Datastructures::clear_all()
     all_connections.clear();
     connected_affs.clear();
     visitedAffiliations.clear();
-    affiliationPublications.clear();
-    affiliation_connections.clear();
 }
 
 std::vector<AffiliationID> Datastructures::get_all_affiliations()
@@ -468,88 +464,125 @@ bool Datastructures::remove_publication(PublicationID publicationid)
         return true;
 
 }
+
 std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID id)
 {
-    return affiliation_connections[id];
+    connected_affs.clear();
+    auto it = affiliation_data.find(id);
+    if (it == affiliation_data.end()) {
+        return connected_affs;
+    }
+    for (const auto& conn : all_connections)
+    {
+        if (conn.aff1 == id)
+        {
+            connected_affs.push_back(conn);
+        }
+        else if (conn.aff2 == id)
+        {
+            Connection new_conn;
+            new_conn.aff1 = conn.aff2;
+            new_conn.aff2 = conn.aff1;
+            new_conn.weight = conn.weight;
+            connected_affs.push_back(new_conn);
+        }
+    }
+    return connected_affs;
 }
-
 
 std::vector<Connection> Datastructures::get_all_connections()
 {
-    if (pub_change) {
-        all_connections.clear();
-        affiliationPublications.clear();
+    if (pub_change){
+    all_connections.clear();
+    for (const auto& pair : affiliation_data)
+    {
+        std::vector<PublicationID> main_pubs = get_publications(pair.first);
+        for (const auto& pair2 : affiliation_data)
+        {
+            std::vector<PublicationID> other_pubs = get_publications(pair2.first);
+            int count = 0;
+            for (const auto& pub : main_pubs)
+            {
+                std::unordered_set<PublicationID> other_pubs_set(other_pubs.begin(), other_pubs.end());
+                if (other_pubs_set.find(pub) != other_pubs_set.end())
+                {
+                    count += 1;
+                }
+            }
+            if (count > 0 && pair.first != pair2.first)
+            {
+                Connection new_connection;
+                if (pair.first < pair2.first){
+                    new_connection.aff1 = pair.first;
+                    new_connection.aff2 = pair2.first;
+                } else {
+                    new_connection.aff1 = pair2.first;
+                    new_connection.aff2 = pair.first;
+                }
 
-        // Populate the hash map with affiliations and their associated publications
-        for (const auto& pair : affiliation_data) {
-            const AffiliationID& affID = pair.first;
-            const std::vector<PublicationID>& publications = get_publications(affID);
-            affiliationPublications[affID] = std::set<PublicationID>(publications.begin(), publications.end());
-        }
-
-        // Iterate over the affiliations and find common publications efficiently using the hash map
-        for (auto it1 = affiliation_data.begin(); it1 != affiliation_data.end(); ++it1) {
-            for (auto it2 = std::next(it1); it2 != affiliation_data.end(); ++it2) {
-                const AffiliationID& aff1 = it1->first;
-                const AffiliationID& aff2 = it2->first;
-
-                // Find common publications using set_intersection
-                commonPublications.clear();
-                std::set_intersection(
-                    affiliationPublications[aff1].begin(), affiliationPublications[aff1].end(),
-                    affiliationPublications[aff2].begin(), affiliationPublications[aff2].end(),
-                    std::back_inserter(commonPublications)
-                );
-
-                // If there are common publications, create a connection
-                if (!commonPublications.empty()) {
-                    Connection newConnection;
-                    newConnection.aff1 = std::min(aff1, aff2);
-                    newConnection.aff2 = std::max(aff1, aff2);
-                    newConnection.weight = static_cast<int>(commonPublications.size());
-
-                    all_connections.push_back(newConnection);
-
-                    // Update the affiliation_connections data structure
-                    affiliation_connections[newConnection.aff1].push_back(newConnection);
-                    std::swap(newConnection.aff1, newConnection.aff2);
-                    affiliation_connections[newConnection.aff1].push_back(newConnection);
+                new_connection.weight = count;
+                bool exists = false;
+                for (const auto& conn : all_connections){
+                    if ((new_connection.aff1 == conn.aff2 && new_connection.aff2 == conn.aff1) || new_connection == conn){
+                        exists = true;
+                    }
+                }
+                if (!exists){
+                    all_connections.emplace_back(new_connection);
                 }
             }
         }
-
-        pub_change = false;
     }
-
+    }
     return all_connections;
 }
 
 Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
 {
-    std::queue<AffiliationID> queue;
-    std::unordered_map<AffiliationID, Connection> parent;
+    Path path;
 
-    queue.push(source);
-    while (!queue.empty()) {
-        AffiliationID current = queue.front();
-        queue.pop();
-        if (current == target) {
-            Path path;
-            while (current != source) {
-                path.push_back(parent[current]);
-                current = parent[current].aff1;
-            }
-            std::reverse(path.begin(), path.end());
+    // Check if the source and target are the same
+    if (source == target || visitedAffiliations.count(source) > 0) {
+        return path;
+    }
+
+    visitedAffiliations.insert(source);
+
+    auto it = affiliation_data.find(source);
+    auto it2 = affiliation_data.find(target);
+
+    if (it == affiliation_data.end() || it2 == affiliation_data.end()) {
+        visitedAffiliations.erase(source);  // Remove from visited set if not found
+        return path;
+    }
+
+    std::vector<Connection> source_connections = get_connected_affiliations(source);
+
+    for (const auto& source_conn : source_connections) {
+        // Check if the connection leads to the target
+        if (source_conn.aff2 == target) {
+            path.push_back(source_conn);
+            visitedAffiliations.erase(source);  // Remove from visited set
             return path;
         }
-        for (const auto& conn : get_connected_affiliations(current)) {
-            if (parent.count(conn.aff2) == 0) {
-                parent[conn.aff2] = conn;
-                queue.push(conn.aff2);
+
+        // Recursively find a path from the current connection's aff2 to the target
+        if (visitedAffiliations.find(source_conn.aff2) == visitedAffiliations.end()){
+            Path subpath = get_any_path(source_conn.aff2, target);
+            if (!subpath.empty()) {
+                path.push_back(source_conn);
+                path.insert(path.end(), subpath.begin(), subpath.end());
+                visitedAffiliations.erase(source);  // Remove from visited set
+                return path;
             }
         }
     }
-    return Path();
+
+    // Remove from visited set before returning
+    visitedAffiliations.erase(source);
+
+    // Return an empty path if no valid path is found
+    return path;
 }
 
 Path Datastructures::get_path_with_least_affiliations(AffiliationID /*source*/, AffiliationID /*target*/)
@@ -569,5 +602,4 @@ PathWithDist Datastructures::get_shortest_path(AffiliationID /*source*/, Affilia
     // Replace the line below with your implementation
     throw NotImplemented("get_shortest_path()");
 }
-
 

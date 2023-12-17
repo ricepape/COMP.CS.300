@@ -169,7 +169,7 @@ bool Datastructures::add_publication(PublicationID id, const Name &name, Year ye
         new_pub.affiliations = affiliations;
         publications_data[id] = new_pub;
         aff_change = true;
-        pub_change = true;
+        create_connection(new_pub, NO_AFFILIATION);
         for (const auto& aff_id : affiliations)
         {
             affiliations_with_years[aff_id].insert({year, id});
@@ -246,7 +246,7 @@ bool Datastructures::add_affiliation_to_publication(AffiliationID affiliationid,
     (publications_data.find(publicationid) != publications_data.end())) {
         publications_data[publicationid].affiliations.push_back(affiliationid);
         affiliations_with_years[affiliationid].insert({publications_data[publicationid].publication_year, publicationid});
-        pub_change = true;
+        create_connection(publications_data[publicationid], affiliationid);
         return true;
     } else {
         return false;

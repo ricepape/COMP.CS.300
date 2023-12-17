@@ -349,7 +349,7 @@ private:
     bool findPath(AffiliationID current, AffiliationID target, Path& path, std::unordered_map<AffiliationID, bool>& visited);
     void create_connection_for_all();
     std::vector<PublicationID> get_common_publication(AffiliationID id1, AffiliationID id2);
-    void create_connection(const PublicationData& pub, AffiliationID aff_to_fix = NO_AFFILIATION);
+    void create_connection(PublicationData& pub, AffiliationID aff_to_fix);
 
 };
 

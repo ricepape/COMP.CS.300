@@ -178,9 +178,11 @@ bool Datastructures::add_publication(PublicationID id, const Name &name, Year ye
         for (const auto& aff_id : affiliations)
         {
             affiliationPublications[aff_id].push_back(id);
+
         }
+        create_connection(publications_data[id], NO_AFFILIATION);
         pub_change = true;
-        create_connection(publications_data[id]);
+
         return true;
     }
     return false;
@@ -491,7 +493,7 @@ std::vector<PublicationID> Datastructures::get_common_publication(AffiliationID 
     return commonPublications;
 }
 
-void Datastructures::create_connection(const PublicationData& publication, AffiliationID aff_to_fix)
+void Datastructures::create_connection(PublicationData& publication, AffiliationID aff_to_fix)
 {
     if (aff_to_fix == NO_AFFILIATION) {
         for (size_t i = 0; i < publication.affiliations.size(); ++i) {
@@ -514,15 +516,18 @@ void Datastructures::create_connection(const PublicationData& publication, Affil
 
                 if (it != affiliation_connections.end()) {
                     std::vector<Connection> connections = it->second;
-                    for (auto& conn : connections) {
+                    for (Connection &conn : all_connections) {
                         if (conn.aff1 == source && conn.aff2 == target) {
-                            // Found a connection with the same source and target
+                            conn.weight += 1;
+                        }
+                    }
+                    for (Connection &conn : connections) {
+                        if (conn.aff1 == source && conn.aff2 == target) {
                             exist = true;
                             conn.weight += 1;
                             break;
                         }
                     }
-
                     if (!exist) {
                         Connection connection, connection_reverse;
                         connection.aff1 = source;
@@ -543,11 +548,16 @@ void Datastructures::create_connection(const PublicationData& publication, Affil
                     auto it_reverse = affiliation_connections.find(target);
                     if (it_reverse != affiliation_connections.end()) {
                         std::vector<Connection> connections_reverse = it_reverse->second;
-                        for (auto& conn : connections_reverse) {
+                        for (Connection& conn : connections_reverse) {
                             if (conn.aff1 == target && conn.aff2 == source) {
                                 conn.weight += 1;
                                 break;
                             }
+                        }
+                    }
+                    for (Connection &conn : all_connections) {
+                        if (conn.aff1 == target && conn.aff2 == source) {
+                            conn.weight += 1;
                         }
                     }
 
@@ -571,16 +581,21 @@ void Datastructures::create_connection(const PublicationData& publication, Affil
             }
             bool exist = false;
             auto it = affiliation_connections.find(source);
-
             if (it != affiliation_connections.end()) {
                 std::vector<Connection> connections = it->second;
-                for (auto& conn : connections) {
+                for (Connection &conn : all_connections) {
+                    if (conn.aff1 == source && conn.aff2 == target) {
+                        conn.weight += 1;
+                    }
+                }
+                for (Connection &conn : connections) {
                     if (conn.aff1 == source && conn.aff2 == target) {
                         // Found a connection with the same source and target
                         exist = true;
                         conn.weight += 1;
                         break;
                     }
+
                 }
 
                 if (!exist) {
@@ -601,15 +616,19 @@ void Datastructures::create_connection(const PublicationData& publication, Affil
             }
             if (exist) {
                 auto it_reverse = affiliation_connections.find(target);
-                if (it_reverse != affiliation_connections.end()) {
                     std::vector<Connection> connections_reverse = it_reverse->second;
-                    for (auto& conn : connections_reverse) {
+                    for (Connection conn : connections_reverse) {
                         if (conn.aff1 == target && conn.aff2 == source) {
                             conn.weight += 1;
                             break;
-                        }
+
                     }
                 }
+                    for (Connection &conn : all_connections) {
+                        if (conn.aff1 == target && conn.aff2 == source) {
+                            conn.weight += 1;
+                        }
+                    }
 
             }
         }
@@ -622,7 +641,6 @@ std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID
     if (affiliation_connections.find(id) != affiliation_connections.end()) {
         return affiliation_connections[id];
     }
-
     return {};
 }
 

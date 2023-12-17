@@ -342,8 +342,11 @@ private:
     std::unordered_set<AffiliationID> visitedAffiliations;
     std::unordered_map<AffiliationID, std::vector<Connection>> affiliation_connections;
     std::unordered_map<AffiliationID, std::set<PublicationID>> affiliationPublications;
-
-    std::vector<Connection> create_connections();
+    void create_connections();
+    double calculateFriction(const Path& path);
+    void findAllPaths(AffiliationID source, AffiliationID target, Path& currentPath, std::vector<Path>& allPaths, std::unordered_set<AffiliationID>& visited);
+    double calculateConnectionLength(const Connection conn);
+    std::pair<double, PathWithDist> Dijkstra_shortest(AffiliationID source, AffiliationID target);
 
 
 };

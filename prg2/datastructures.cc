@@ -476,7 +476,7 @@ std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID
     {
         if (conn.aff1 == id)
         {
-            connected_affs.push_back(conn);
+            connected_affs.emplace_back(conn);
         }
         else if (conn.aff2 == id)
         {
@@ -484,14 +484,12 @@ std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID
             new_conn.aff1 = conn.aff2;
             new_conn.aff2 = conn.aff1;
             new_conn.weight = conn.weight;
-            connected_affs.push_back(new_conn);
+            connected_affs.emplace_back(new_conn);
         }
     }
     return connected_affs;
 }
-
-std::vector<Connection> Datastructures::get_all_connections()
-{
+std::vector<Connection> Datastructures::create_connections(){
     if (pub_change){
     all_connections.clear();
     for (const auto& pair : affiliation_data)
@@ -534,6 +532,10 @@ std::vector<Connection> Datastructures::get_all_connections()
         }
     }
     }
+}
+
+std::vector<Connection> Datastructures::get_all_connections()
+{
     return all_connections;
 }
 

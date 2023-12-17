@@ -649,7 +649,7 @@ std::vector<Connection> Datastructures::get_all_connections()
     return all_connections;
 }
 
-bool Datastructures::findPath(AffiliationID current, AffiliationID target, Path& path, std::unordered_map<AffiliationID, bool>& visited) {
+bool Datastructures::find_correct_path(AffiliationID current, AffiliationID target, Path& path, std::unordered_map<AffiliationID, bool>& visited) {
 
     if (current == target) {
         return true;
@@ -663,7 +663,7 @@ bool Datastructures::findPath(AffiliationID current, AffiliationID target, Path&
         if (!visited[connection.aff2]) {
             path.push_back(connection);
 
-            if (findPath(connection.aff2, target, path, visited)) {
+            if (find_correct_path(connection.aff2, target, path, visited)) {
 
                 return true;
             }
@@ -688,7 +688,7 @@ Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
         visited[conn.aff2] = false;
     }
 
-    if (findPath(source, target, path, visited)) {
+    if (find_correct_path(source, target, path, visited)) {
         return path;
     }
 

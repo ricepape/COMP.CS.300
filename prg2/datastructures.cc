@@ -170,7 +170,6 @@ bool Datastructures::add_publication(PublicationID id, const Name &name, Year ye
         publications_data[id] = new_pub;
         aff_change = true;
         pub_change = true;
-        create_connections();
         for (const auto& aff_id : affiliations)
         {
             affiliations_with_years[aff_id].insert({year, id});
@@ -248,7 +247,6 @@ bool Datastructures::add_affiliation_to_publication(AffiliationID affiliationid,
         publications_data[publicationid].affiliations.push_back(affiliationid);
         affiliations_with_years[affiliationid].insert({publications_data[publicationid].publication_year, publicationid});
         pub_change = true;
-        create_connections();
         return true;
     } else {
         return false;
@@ -407,7 +405,6 @@ bool Datastructures::remove_affiliation(AffiliationID id)
     }
 
     pub_change = true;
-    create_connections();
     return true;
 }
 
@@ -600,7 +597,6 @@ std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID
 
 std::vector<Connection> Datastructures::get_all_connections()
 {
-    // create_connection_for_all();
     std::vector<Connection> result;
     result.reserve(all_connections.size());
 

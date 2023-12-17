@@ -58,6 +58,8 @@ void Datastructures::clear_all()
     all_connections.clear();
     connected_affs.clear();
     visitedAffiliations.clear();
+    all_connections.clear();
+    affiliation_connections.clear();
 }
 
 std::vector<AffiliationID> Datastructures::get_all_affiliations()

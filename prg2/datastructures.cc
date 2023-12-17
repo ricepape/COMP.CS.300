@@ -466,32 +466,6 @@ bool Datastructures::remove_publication(PublicationID publicationid)
 
 }
 
-std::vector<PublicationID> Datastructures::get_common_publication(AffiliationID id1, AffiliationID id2)
-{
-    std::vector<PublicationID> pub1 = get_publications(id1);
-    std::vector<PublicationID> pub2 = get_publications(id2);
-
-    std::vector<PublicationID> commonPublications;
-    if (id1 == id2) {
-        return commonPublications;
-    }
-    for (const PublicationID id : pub1) {
-        if (std::find(pub2.begin(), pub2.end(), id) != pub2.end()) {
-            commonPublications.push_back(id);
-        }
-    }
-
-    return commonPublications;
-}
-/*
-void Datastructures::create_connection_for_all()
-{
-    for (const auto& id : allAffiliationIDs) {
-        create_connection(id);
-    }
-
-}
-*/
 void Datastructures::create_connection(PublicationData pub, AffiliationID aff_to_fix)
 {
     if (aff_to_fix == NO_AFFILIATION) {
@@ -647,13 +621,13 @@ bool Datastructures::findPath(AffiliationID current, AffiliationID target, Path&
 
     visited[current] = true;
 
-    for (const Connection* connection : affiliation_connections[current]) {
+    for (Connection &connection : affiliation_connections[current]) {
 
         // Check if the connection is not visited and if it leads to the target
-        if (!visited[connection->aff2]) {
-            path.push_back(*connection);
+        if (!visited[connection.aff2]) {
+            path.push_back(connection);
 
-            if (findPath(connection->aff2, target, path, visited)) {
+            if (findPath(connection.aff2, target, path, visited)) {
 
                 return true;
             }
@@ -841,26 +815,6 @@ std::pair<double, PathWithDist> Datastructures::Dijkstra_shortest(AffiliationID 
 
 PathWithDist Datastructures::get_shortest_path(AffiliationID source, AffiliationID target)
 {
-    /*
-    // create_connection_for_all();
-    Path path;
-    std::vector<Path> allPaths = std::vector<Path>();
-    std::unordered_set<AffiliationID> visited;
-    findAllPaths(source, target, path, allPaths, visited);
-    double minLength = std::numeric_limits<double>::max();
-
-    PathWithDist bestPath;
-    for (auto& path : allPaths) {
-        PathWithDist newPath;
-        double length = calculateLength(path, newPath);
-        if (length < minLength) {
-            minLength = length;
-            bestPath = newPath;
-        }
-
-    }
-    return bestPath;
-    */
     PathWithDist bestPath;
     double shortestPathLength;
 

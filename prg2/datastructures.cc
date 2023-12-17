@@ -797,7 +797,7 @@ double Datastructures::calculateConnectionLength(const Connection conn) {
     auto source = affiliation_data.find(conn.aff1);
     auto target = affiliation_data.find(conn.aff2);
     double length = 0;
-    if (source != affiliation_data.end() && source != affiliation_data.end()) {
+    if (source != affiliation_data.end() && target != affiliation_data.end()) {
         length = std::sqrt(std::pow(source->second.coordinates.x - target->second.coordinates.x, 2) + std::pow(source->second.coordinates.y - target->second.coordinates.y, 2));
 
     }
@@ -807,7 +807,7 @@ double Datastructures::calculateConnectionLength(const Connection conn) {
 std::pair<double, PathWithDist> Datastructures::Dijkstra_shortest(AffiliationID source, AffiliationID target) {
     std::priority_queue<std::pair<int, AffiliationID>, std::vector<std::pair<int, AffiliationID>>, std::greater<std::pair<int, AffiliationID>>> pq;
     std::unordered_map<AffiliationID, int> distance;
-    std::unordered_map<AffiliationID, Connection*> previous; // Store previous connections
+    std::unordered_map<AffiliationID, Connection> previous; // Store previous connections
 
     // Initialize distances to infinity
     for (auto& kp : affiliation_connections) {
@@ -825,8 +825,9 @@ std::pair<double, PathWithDist> Datastructures::Dijkstra_shortest(AffiliationID 
         if (current == target) {
             PathWithDist shortestPath;
             while (previous.find(current) != previous.end()) {
-                shortestPath.push_back(std::make_pair(*previous[current], calculateConnectionLength(*previous[current])));
-                current = previous[current]->aff1; // Move to the previous node in the path
+                Connection conn = previous[current];
+                shortestPath.push_back(std::make_pair(conn, calculateConnectionLength(conn)));
+                current = conn.aff1; // Move to the previous node in the path
             }
             std::reverse(shortestPath.begin(), shortestPath.end()); // Reverse to get correct order
             return { distance[target], shortestPath }; // Return shortest path length and the path
@@ -838,7 +839,7 @@ std::pair<double, PathWithDist> Datastructures::Dijkstra_shortest(AffiliationID 
             if (newDistance < distance[conn.aff2]) {
                 distance[conn.aff2] = newDistance;
                 pq.push({newDistance, conn.aff2});
-                previous[conn.aff2] = &conn; // Record the connection for the shortest path
+                previous[conn.aff2] = conn; // Record the connection for the shortest path
             }
         }
     }
@@ -849,13 +850,15 @@ std::pair<double, PathWithDist> Datastructures::Dijkstra_shortest(AffiliationID 
 PathWithDist Datastructures::get_shortest_path(AffiliationID source, AffiliationID target)
 {
     PathWithDist bestPath;
-        double shortestPathLength;
+    double shortestPathLength;
 
+    std::tie(shortestPathLength, bestPath) = Dijkstra_shortest(source, target);
 
-        std::tie(shortestPathLength, bestPath) = Dijkstra_shortest(source, target);
-        if (shortestPathLength == -1 || shortestPathLength == 0) {
-            return bestPath;
-        } else {
-            return bestPath;
-        }
+    if (shortestPathLength == -1) {
+        // No path found, return an empty path
+        return PathWithDist();
+    } else {
+        // Path found, return it
+        return bestPath;
+    }
 }

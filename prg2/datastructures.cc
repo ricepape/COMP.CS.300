@@ -462,6 +462,23 @@ bool Datastructures::remove_publication(PublicationID publicationid)
         return true;
 
 }
+std::vector<PublicationID> Datastructures::get_common_publication(AffiliationID id1, AffiliationID id2)
+{
+    std::vector<PublicationID> pub1 = get_publications(id1);
+    std::vector<PublicationID> pub2 = get_publications(id2);
+
+    std::vector<PublicationID> commonPublications;
+    if (id1 == id2) {
+        return commonPublications;
+    }
+    for (const PublicationID id : pub1) {
+        if (std::find(pub2.begin(), pub2.end(), id) != pub2.end()) {
+            commonPublications.push_back(id);
+        }
+    }
+
+    return commonPublications;
+}
 
 void Datastructures::create_connection(PublicationData pub, AffiliationID aff_to_fix)
 {
@@ -487,7 +504,7 @@ void Datastructures::create_connection(PublicationData pub, AffiliationID aff_to
 
                 if (it != affiliation_connections.end()) {
                     std::vector<Connection>& connections = it->second;
-                    for (Connection conn : connections) {
+                    for (Connection& conn : connections) {
                         if (conn.aff1 == source && conn.aff2 == target) {
                             // Found a connection with the same source and target
                             exist = true;
@@ -497,28 +514,26 @@ void Datastructures::create_connection(PublicationData pub, AffiliationID aff_to
                     }
 
                     if (!exist) {
-                        Connection *connection = new Connection{source, target, 1};
-                        Connection *connection_reverse = new Connection{target, source, 1};
-                        all_connections.push_back(*connection);
+                        Connection connection = {source, target, 1};
+                        Connection connection_reverse = {target, source, 1};
+                        all_connections.push_back(connection);
 
-                        affiliation_connections[source].push_back(*connection);
-                        affiliation_connections[target].push_back(*connection_reverse);
-
+                        affiliation_connections[source].push_back(connection);
+                        affiliation_connections[target].push_back(connection_reverse);
                     }
-
                 }
+
                 if (exist) {
                     auto it_reverse = affiliation_connections.find(target);
                     if (it_reverse != affiliation_connections.end()) {
                         std::vector<Connection>& connections_reverse = it_reverse->second;
-                        for (Connection conn : connections_reverse) {
+                        for (Connection& conn : connections_reverse) {
                             if (conn.aff1 == target && conn.aff2 == source) {
                                 conn.weight += 1;
                                 break;
                             }
                         }
                     }
-
                 }
             }
         }
@@ -542,7 +557,7 @@ void Datastructures::create_connection(PublicationData pub, AffiliationID aff_to
 
             if (it != affiliation_connections.end()) {
                 std::vector<Connection>& connections = it->second;
-                for (Connection conn : connections) {
+                for (Connection& conn : connections) {
                     if (conn.aff1 == source && conn.aff2 == target) {
                         // Found a connection with the same source and target
                         exist = true;
@@ -552,44 +567,35 @@ void Datastructures::create_connection(PublicationData pub, AffiliationID aff_to
                 }
 
                 if (!exist) {
-                    Connection *connection = new Connection{source, target, 1};
-                    Connection *connection_reverse = new Connection{target, source, 1};
-                    all_connections.push_back(*connection);
+                    Connection connection = {source, target, 1};
+                    Connection connection_reverse = {target, source, 1};
+                    all_connections.push_back(connection);
 
-                    affiliation_connections[source].push_back(*connection);
-                    affiliation_connections[target].push_back(*connection_reverse);
-
+                    affiliation_connections[source].push_back(connection);
+                    affiliation_connections[target].push_back(connection_reverse);
                 }
-
             }
+
             if (exist) {
                 auto it_reverse = affiliation_connections.find(target);
                 if (it_reverse != affiliation_connections.end()) {
                     std::vector<Connection>& connections_reverse = it_reverse->second;
-                    for (Connection conn : connections_reverse) {
+                    for (Connection& conn : connections_reverse) {
                         if (conn.aff1 == target && conn.aff2 == source) {
                             conn.weight += 1;
                             break;
                         }
                     }
                 }
-
             }
         }
     }
-
 }
 
 std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID id)
 {
-
     if (affiliation_connections.find(id) != affiliation_connections.end()) {
-        std::vector<Connection> result;
-        result.reserve(affiliation_connections[id].size());
-        for (const auto& aff_id : affiliation_connections[id]) {
-                result.emplace_back(aff_id);
-        }
-        return result;
+        return affiliation_connections[id];
     }
 
     return {};
@@ -597,34 +603,22 @@ std::vector<Connection> Datastructures::get_connected_affiliations(AffiliationID
 
 std::vector<Connection> Datastructures::get_all_connections()
 {
-    std::vector<Connection> result;
-    result.reserve(all_connections.size());
-
-    // Convert pointers to objects
-    for (const auto& conn : all_connections) {
-        result.emplace_back(conn); // Dereference pointer and push_back into allConnections
-
-    }
-    return result;
-    //return allConnections;
+    return all_connections;
 }
 
-bool Datastructures::findPath(AffiliationID current, AffiliationID target, Path& path, std::unordered_map<AffiliationID, bool>& visited) {
-
+bool Datastructures::findPath(AffiliationID current, AffiliationID target, Path& path, std::unordered_map<AffiliationID, bool>& visited)
+{
     if (current == target) {
         return true;
     }
 
     visited[current] = true;
 
-    for (Connection &connection : affiliation_connections[current]) {
-
-        // Check if the connection is not visited and if it leads to the target
+    for (const Connection& connection : affiliation_connections[current]) {
         if (!visited[connection.aff2]) {
             path.push_back(connection);
 
             if (findPath(connection.aff2, target, path, visited)) {
-
                 return true;
             }
             path.pop_back();
@@ -636,8 +630,6 @@ bool Datastructures::findPath(AffiliationID current, AffiliationID target, Path&
 
 Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
 {
-
-    // create_connection_for_all();
     Path path;
     std::unordered_map<AffiliationID, bool> visited;
 
@@ -645,7 +637,7 @@ Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
         return path; // Empty path as source and target are the same
     }
 
-    for (Connection conn : all_connections) {
+    for (const Connection& conn : all_connections) {
         visited[conn.aff1] = false;
         visited[conn.aff2] = false;
     }
@@ -655,20 +647,16 @@ Path Datastructures::get_any_path(AffiliationID source, AffiliationID target)
     }
 
     return {}; // Empty path if no path found
-
-
 }
 
 Path Datastructures::get_path_with_least_affiliations(AffiliationID source, AffiliationID target)
 {
-
-    // create_connection_for_all();
     std::unordered_set<AffiliationID> visited;
     std::queue<Path> paths;
     paths.push({});
 
     while (!paths.empty()) {
-        std::vector<Connection> currentPath = paths.front();
+        Path currentPath = paths.front();
         paths.pop();
 
         Connection lastConnection;
@@ -684,9 +672,9 @@ Path Datastructures::get_path_with_least_affiliations(AffiliationID source, Affi
 
         visited.insert(currentAffiliation);
 
-        for (const auto& conn : affiliation_connections[currentAffiliation]) {
+        for (const Connection& conn : affiliation_connections[currentAffiliation]) {
             if (visited.find(conn.aff2) == visited.end()) {
-                std::vector<Connection> newPath = currentPath;
+                Path newPath = currentPath;
                 newPath.push_back(conn);
                 paths.push(newPath);
             }
@@ -696,9 +684,10 @@ Path Datastructures::get_path_with_least_affiliations(AffiliationID source, Affi
     return {}; // Empty path if no path found
 }
 
-double Datastructures::calculateFriction(const Path& path) {
+double Datastructures::calculateFriction(const Path& path)
+{
     double minWeight = std::numeric_limits<double>::max();
-    for (const auto& conn : path) {
+    for (const Connection& conn : path) {
         if (conn.weight < minWeight) {
             minWeight = conn.weight;
         }
@@ -707,15 +696,14 @@ double Datastructures::calculateFriction(const Path& path) {
     return 1.0 / minWeight;
 }
 
-void Datastructures::findAllPaths(AffiliationID source, AffiliationID target, Path& currentPath, std::vector<Path>& allPaths, std::unordered_set<AffiliationID>& visited) {
-
+void Datastructures::findAllPaths(AffiliationID source, AffiliationID target, Path& currentPath, std::vector<Path>& allPaths, std::unordered_set<AffiliationID>& visited)
+{
     visited.insert(source);
 
     if (source == target) {
-        // If we reach the target, store the current path in allPaths
         allPaths.push_back(currentPath);
     } else {
-        for (const auto& conn : affiliation_connections[source]) {
+        for (const Connection& conn : affiliation_connections[source]) {
             if (visited.find(conn.aff2) == visited.end()) {
                 currentPath.push_back(conn);
                 findAllPaths(conn.aff2, target, currentPath, allPaths, visited);
@@ -725,12 +713,10 @@ void Datastructures::findAllPaths(AffiliationID source, AffiliationID target, Pa
     }
 
     visited.erase(source);
-
 }
 
 Path Datastructures::get_path_of_least_friction(AffiliationID source, AffiliationID target)
 {
-    // create_connection_for_all();
     Path path;
     std::vector<Path> allPaths = std::vector<Path>();
     std::unordered_set<AffiliationID> visited;
@@ -738,7 +724,7 @@ Path Datastructures::get_path_of_least_friction(AffiliationID source, Affiliatio
     double minFriction = std::numeric_limits<double>::max();
     int minPathLength = std::numeric_limits<int>::max();
     Path bestPath;
-    for (auto& path : allPaths) {
+    for (const Path& path : allPaths) {
         double friction = calculateFriction(path);
         if (friction < minFriction) {
             minFriction = friction;
@@ -755,24 +741,24 @@ Path Datastructures::get_path_of_least_friction(AffiliationID source, Affiliatio
     return bestPath;
 }
 
-double Datastructures::calculateConnectionLength(const Connection conn) {
+double Datastructures::calculateConnectionLength(const Connection& conn)
+{
     auto source = affiliation_data.find(conn.aff1);
     auto target = affiliation_data.find(conn.aff2);
     double length = 0;
-    if (source != affiliation_data.end() && source != affiliation_data.end()) {
-        length = std::sqrt(std::pow(source->second.coordinates.x -target->second.coordinates.x, 2) + std::pow(source->second.coordinates.y - target->second.coordinates.y, 2));
-
+    if (source != affiliation_data.end() && target != affiliation_data.end()) {
+        length = std::sqrt(std::pow(source->second.coordinates.x - target->second.coordinates.x, 2) + std::pow(source->second.coordinates.y - target->second.coordinates.y, 2));
     }
     return length;
 }
 
-std::pair<double, PathWithDist> Datastructures::Dijkstra_shortest(AffiliationID source, AffiliationID target) {
+std::pair<double, PathWithDist> Datastructures::Dijkstra_shortest(AffiliationID source, AffiliationID target)
+{
     std::priority_queue<std::pair<int, AffiliationID>, std::vector<std::pair<int, AffiliationID>>, std::greater<std::pair<int, AffiliationID>>> pq;
     std::unordered_map<AffiliationID, int> distance;
     std::unordered_map<AffiliationID, Connection*> previous; // Store previous connections
 
-    // Initialize distances to infinity
-    for (auto& kp : affiliation_connections) {
+    for (const auto& kp : affiliation_connections) {
         distance[kp.first] = std::numeric_limits<int>::max();
     }
 
@@ -790,23 +776,22 @@ std::pair<double, PathWithDist> Datastructures::Dijkstra_shortest(AffiliationID 
                 shortestPath.push_back(std::make_pair(*previous[current], calculateConnectionLength(*previous[current])));
                 current = previous[current]->aff1; // Move to the previous node in the path
             }
-            std::reverse(shortestPath.begin(), shortestPath.end()); // Reverse to get correct order
-            return { distance[target], shortestPath }; // Return shortest path length and the path
+            std::reverse(shortestPath.begin(), shortestPath.end()); // Reverse to get the correct order
+            return {distance[target], shortestPath}; // Return the shortest path length and the path
         }
 
-        for (Connection conn : affiliation_connections[current]) {
-
+        for (const Connection& conn : affiliation_connections[current]) {
             double connection_length = calculateConnectionLength(conn);
             int newDistance = currentDistance + connection_length;
             if (newDistance < distance[conn.aff2]) {
                 distance[conn.aff2] = newDistance;
                 pq.push({newDistance, conn.aff2});
-                previous[conn.aff2] = &conn; // Record the connection for the shortest path
+                previous[conn.aff2] = const_cast<Connection*>(&conn); // Record the connection for the shortest path
             }
         }
     }
 
-    return { -1, {} }; // No path found, return -1 for distance and an empty vector for the path
+    return {-1, {}}; // No path found, return -1 for distance and an empty vector for the path
 }
 
 PathWithDist Datastructures::get_shortest_path(AffiliationID source, AffiliationID target)
@@ -814,14 +799,10 @@ PathWithDist Datastructures::get_shortest_path(AffiliationID source, Affiliation
     PathWithDist bestPath;
     double shortestPathLength;
 
-
     std::tie(shortestPathLength, bestPath) = Dijkstra_shortest(source, target);
     if (shortestPathLength == -1 || shortestPathLength == 0) {
         return bestPath;
     } else {
         return bestPath;
     }
-
 }
-
-

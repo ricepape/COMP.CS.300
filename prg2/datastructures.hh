@@ -347,7 +347,8 @@ private:
     void findAllPaths(AffiliationID source, AffiliationID target, Path& currentPath, std::vector<Path>& allPaths, std::unordered_set<AffiliationID>& visited);
     double calculateConnectionLength(const Connection conn);
     std::pair<double, PathWithDist> Dijkstra_shortest(AffiliationID source, AffiliationID target);
-
+    void create_connection(PublicationData pub, AffiliationID aff_to_fix);
+    bool findPath(AffiliationID current, AffiliationID target, Path& path, std::unordered_map<AffiliationID, bool>& visited);
 
 };
 

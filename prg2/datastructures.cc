@@ -515,7 +515,7 @@ void Datastructures::create_connection(PublicationData& publication, Affiliation
                 auto it = affiliation_connections.find(source);
 
                 if (it != affiliation_connections.end()) {
-                    std::vector<Connection> connections = it->second;
+                    std::vector<Connection>& connections = it->second;
                     for (Connection &conn : all_connections) {
                         if (conn.aff1 == source && conn.aff2 == target) {
                             conn.weight += 1;
@@ -547,7 +547,7 @@ void Datastructures::create_connection(PublicationData& publication, Affiliation
                 if (exist) {
                     auto it_reverse = affiliation_connections.find(target);
                     if (it_reverse != affiliation_connections.end()) {
-                        std::vector<Connection> connections_reverse = it_reverse->second;
+                        std::vector<Connection>& connections_reverse = it_reverse->second;
                         for (Connection& conn : connections_reverse) {
                             if (conn.aff1 == target && conn.aff2 == source) {
                                 conn.weight += 1;
@@ -582,7 +582,7 @@ void Datastructures::create_connection(PublicationData& publication, Affiliation
             bool exist = false;
             auto it = affiliation_connections.find(source);
             if (it != affiliation_connections.end()) {
-                std::vector<Connection> connections = it->second;
+                std::vector<Connection>& connections = it->second;
                 for (Connection &conn : all_connections) {
                     if (conn.aff1 == source && conn.aff2 == target) {
                         conn.weight += 1;
@@ -616,7 +616,7 @@ void Datastructures::create_connection(PublicationData& publication, Affiliation
             }
             if (exist) {
                 auto it_reverse = affiliation_connections.find(target);
-                    std::vector<Connection> connections_reverse = it_reverse->second;
+                    std::vector<Connection>& connections_reverse = it_reverse->second;
                     for (Connection conn : connections_reverse) {
                         if (conn.aff1 == target && conn.aff2 == source) {
                             conn.weight += 1;

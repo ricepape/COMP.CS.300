@@ -135,7 +135,7 @@ public:
     std::vector<AffiliationID> get_all_affiliations();
 
     // Estimate of performance: O(1)
-    // Short rationale for estimate: The function goes through the map to 
+    // Short rationale for estimate: The function goes through the map to
     // check and inserting into maps
     bool add_affiliation(AffiliationID id, Name const& name, Coord xy);
 
@@ -153,22 +153,22 @@ public:
     // We recommend you implement the operations below only after implementing the ones above
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements and insert them 
+    // Short rationale for estimate: Go through all the elements and insert them
     // into a vector.
     std::vector<AffiliationID> get_affiliations_alphabetically();
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements and insert them 
+    // Short rationale for estimate: Go through all the elements and insert them
     // into a vector with distance increasing.
     std::vector<AffiliationID> get_affiliations_distance_increasing();
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements to check if the 
+    // Short rationale for estimate: Go through all the elements to check if the
     // coordinations exists
     AffiliationID find_affiliation_with_coord(Coord xy);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements in worst case 
+    // Short rationale for estimate: Go through all the elements in worst case
     // to check if the affiliation exists
     bool change_affiliation_coord(AffiliationID id, Coord newcoord);
 
@@ -176,12 +176,12 @@ public:
     // We recommend you implement the operations below only after implementing the ones above
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements to check if the publication exists 
+    // Short rationale for estimate: Go through all the elements to check if the publication exists
     // then add it to the container.
     bool add_publication(PublicationID id, Name const& name, Year year, const std::vector<AffiliationID> & affiliations);
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: Go through all the elements to get and push them 
+    // Short rationale for estimate: Go through all the elements to get and push them
     // into the container.
     std::vector<PublicationID> all_publications();
 
@@ -237,7 +237,7 @@ public:
     // Non-compulsory operations
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: The function conducts a search through all elements 
+    // Short rationale for estimate: The function conducts a search through all elements
     // to check if the id exists in the database. A for loop goes through all elements
     // from the references vector.
     std::vector<PublicationID> get_all_references(PublicationID id);
@@ -255,7 +255,7 @@ public:
     bool remove_affiliation(AffiliationID id);
 
     // Estimate of performance: O(n^2)
-    // Short rationale for estimate: The function go through two vectors 
+    // Short rationale for estimate: The function go through two vectors
     // to compare if the parents are the same, thus two for loops.
     PublicationID get_closest_common_parent(PublicationID id1, PublicationID id2);
 
@@ -267,7 +267,7 @@ public:
     // PRG 2 functions:
 
     // Estimate of performance: O(n)
-    // Short rationale for estimate: The function goes through all connections in the 
+    // Short rationale for estimate: The function goes through all connections in the
     // all_connections vector to check if the given id is connected to any other affiliations.
     std::vector<Connection> get_connected_affiliations(AffiliationID id);
 
@@ -341,15 +341,15 @@ private:
     std::vector<Connection> connected_affs;
     std::unordered_set<AffiliationID> visitedAffiliations;
     std::unordered_map<AffiliationID, std::vector<Connection>> affiliation_connections;
-    std::unordered_map<AffiliationID, std::set<PublicationID>> affiliationPublications;
+    std::unordered_map<AffiliationID, std::vector<PublicationID>> affiliationPublications;
     double calculateFriction(const Path& path);
     void findAllPaths(AffiliationID source, AffiliationID target, Path& currentPath, std::vector<Path>& allPaths, std::unordered_set<AffiliationID>& visited);
-    double calculateConnectionLength(const Connection& conn);
+    double calculateConnectionLength(const Connection conn);
     std::pair<double, PathWithDist> Dijkstra_shortest(AffiliationID source, AffiliationID target);
-    void create_connection(PublicationData pub, AffiliationID aff_to_fix);
     bool findPath(AffiliationID current, AffiliationID target, Path& path, std::unordered_map<AffiliationID, bool>& visited);
     void create_connection_for_all();
     std::vector<PublicationID> get_common_publication(AffiliationID id1, AffiliationID id2);
+    void create_connection(const PublicationData& pub, AffiliationID aff_to_fix = NO_AFFILIATION);
 
 };
 
